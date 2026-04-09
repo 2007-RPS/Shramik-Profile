@@ -30,229 +30,23 @@ const T = {
 // --- GLOBAL STYLES -------------------------------------------
 function GlobalStyles() {
   return (
-    <style>{`      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
+    <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
       *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
       html{scroll-behavior:smooth}
       body,#root{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:${T.offwhite};color:${T.body};overflow-x:hidden;-webkit-font-smoothing:antialiased}
-      .font-display{font-family:'Syne',system-ui,sans-serif;letter-spacing:-0.04em}
+      .font-display{font-family:'Syne',system-ui,sans-serif;letter-spacing:-0.02em}
+      .h1-big{font-size:clamp(2.5rem,5vw,3.5rem)!important;letter-spacing:-1.4px!important}
+      .h2-big{font-size:clamp(1.9rem,3.4vw,2.7rem)!important;letter-spacing:-1px!important}
+      h1,h2,h3{line-height:1.15}
+      p{line-height:1.75}
+      button,input,select,textarea{font-size:14px}
+      button{min-height:42px}
       .grad-teal{background:linear-gradient(120deg,${T.teal},${T.violetL});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
       .grad-amber{background:linear-gradient(120deg,${T.amber},#F97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
       .grad-violet{background:linear-gradient(120deg,${T.violetL},${T.teal});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
       @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
       @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-      @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-      @keyframes slideLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-      @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.95)}}
-      @keyframes menuSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-      .anim-fadeup{animation:fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) both}
-      .anim-fadeup-1{animation:fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.1s both}
-      .anim-fadeup-2{animation:fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.2s both}
-      .anim-fadein{animation:fadeIn 0.4s ease both}
-      .anim-float{animation:floatY 4s ease-in-out infinite}
-      .anim-menuslide{animation:menuSlide 0.25s cubic-bezier(0.22,1,0.36,1) both}
-      .lift{transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.22s ease,border-color 0.2s}
-      .lift:hover{transform:translateY(-4px)}
-      .card-glow:hover{box-shadow:0 0 0 1.5px ${T.teal}44,0 12px 40px rgba(0,229,195,0.14)}
-      .btn-teal:hover{filter:brightness(1.08);transform:translateY(-2px)}
-      .btn-ghost:hover{border-color:${T.teal}!important;color:${T.teal}!important}
-      ::-webkit-scrollbar{width:5px}
-      ::-webkit-scrollbar-track{background:${T.offwhite}}
-      ::-webkit-scrollbar-thumb{background:${T.borderM};border-radius:3px}
-      .marquee{display:flex;width:max-content;animation:slideLeft 32s linear infinite}
-      .marquee:hover{animation-play-state:paused}
-      .mesh-bg{background:radial-gradient(ellipse 80% 60% at 20% 40%,rgba(0,229,195,0.13) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 20%,rgba(139,92,246,0.11) 0%,transparent 60%),${T.base}}
-      .dot-bg{background-image:radial-gradient(circle,rgba(255,255,255,0.035) 1px,transparent 1px);background-size:28px 28px}
-      .tab-on{background:${T.teal}!important;color:${T.base}!important;font-weight:700!important}
-      input,textarea,select{font-family:'Plus Jakarta Sans',system-ui;color:${T.ink}}
-      input::placeholder,textarea::placeholder{color:${T.dim}}
-      select option{background:#fff;color:${T.ink}}
-      .hamburger{display:none}
-      @media(max-width:900px){
-        .nav-links{display:none!important}
-        .hamburger{display:flex!important}
-        .grid-hero{grid-template-columns:1fr!important}
-        .grid-3{grid-template-columns:1fr 1fr!important}
-        .grid-4{grid-template-columns:1fr 1fr!important}
-        .grid-plan{grid-template-columns:1fr!important}
-        .grid-profile{grid-template-columns:1fr!important}
-        .footer-grid{grid-template-columns:1fr 1fr!important}
-      }
-      @media(max-width:600px){
-        .grid-3{grid-template-columns:1fr!important}
-        .grid-4{grid-template-columns:1fr 1fr!important}
-        .grid-2{grid-template-columns:1fr!important}
-        .bento-grid{grid-template-columns:1fr!important}
-        .h1-big{font-size:36px!important;letter-spacing:-1px!important}
-        .h2-big{font-size:28px!important}
-        .sec-pad{padding:60px 16px!important}
-        .otp-input{width:40px!important;height:50px!important;font-size:18px!important}
-        .sidebar-sticky{position:static!important}
-        .dash-4{grid-template-columns:1fr 1fr!important}
-        .footer-grid{grid-template-columns:1fr!important}
-      }
-    `}</style>
-  );
-}
-
-/*
-// --- HELPERS -------------------------------------------------
-function row(align, justify, gap) {
-  return { display:"flex", alignItems:align||"center", justifyContent:justify||"flex-start", gap:gap||0, flexWrap:"wrap" };
-}
-function col(gap) { return { display:"flex", flexDirection:"column", gap:gap||0 }; }
-function card(p, extra) { return Object.assign({ background:T.white, border:"1px solid #E8EDF4", borderRadius:T.rM, padding:p||24, boxShadow:T.s1 }, extra||{}); }
-var inp = { width:"100%", background:"#F8FAFC", border:"1.5px solid #E2E8F0", borderRadius:T.r, padding:"11px 14px", fontSize:14, outline:"none", transition:"border-color 0.15s" };
-
-// --- ATOMS ---------------------------------------------------
-function Chip(props) {
-  var label=props.label, color=props.color||T.teal, size=props.size||11, dot=props.dot;
-  return (
-    <span style={{ display:"inline-flex", alignItems:"center", gap:5, background:color+"18", color:color, border:"1px solid "+color+"28", borderRadius:T.rX, padding:"4px "+(size+2)+"px", fontSize:size, fontWeight:700, whiteSpace:"nowrap" }}>
-      {dot && <span style={{ width:6, height:6, borderRadius:"50%", background:color, flexShrink:0 }} />}
-      {label}
-    </span>
-  );
-}
-
-function Stars(props) {
-  var n=props.n||0, size=props.size||14, interactive=props.interactive, onChange=props.onChange;
-  var hover = useState(0);
-  var hoverVal = hover[0], setHover = hover[1];
-  return (
-    <span style={row("center","flex-start",3)}>
-      {[1,2,3,4,5].map(function(s) {
-        return (
-          <span key={s} style={{ fontSize:size, color:s<=(hoverVal||n)?T.gold:"#E2E8F0", cursor:interactive?"pointer":"default", lineHeight:1, transition:"color 0.1s" }}
-            onMouseEnter={function(){ if(interactive) setHover(s); }}
-            onMouseLeave={function(){ if(interactive) setHover(0); }}
-            onClick={function(){ if(interactive && onChange) onChange(s); }}>
-            &#9733;
-          </span>
-        );
-      })}
-    </span>
-  );
-}
-
-function Score(props) {
-  var n=props.n, count=props.count;
-  var c = n>=4.7?T.green:n>=4.3?T.tealM:T.amber;
-  return (
-    <span style={Object.assign(row("center","flex-start",5), { background:c+"14", border:"1px solid "+c+"22", borderRadius:T.rX, padding:"4px 11px" })}>
-      <span style={{ fontSize:12, color:T.gold }}>&#9733;</span>
-      <span style={{ fontSize:13, fontWeight:800, color:c }}>{n.toFixed(1)}</span>
-      {count!==undefined && <span style={{ fontSize:11, color:T.muted }}>({count})</span>}
-    </span>
-  );
-}
-
-function Avi(props) {
-  var text=props.text, bg=props.bg, size=props.size||44, r=props.r||12, ring=props.ring;
-  return (
-    <div style={{ width:size, height:size, borderRadius:r, background:bg, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", fontSize:size*0.33, fontWeight:800, color:"#fff", fontFamily:"'Syne',system-ui", boxShadow:ring?"0 0 0 2px "+T.base+",0 0 0 4px "+T.teal:undefined }}>
-      {text}
-    </div>
-  );
-}
-
-function TrustLevel(props) {
-  var score=props.score;
-  var lvl = score>=4.8 ? { label:"Platinum", c:"#94A3B8", icon:"Plat." }
-    : score>=4.5 ? { label:"Gold", c:T.amber, icon:"Gold" }
-    : score>=4.0 ? { label:"Silver", c:"#8B9CB6", icon:"Silver" }
-    : { label:"Rising", c:T.teal, icon:"Rising" };
-  return <Chip label={lvl.label} color={lvl.c} />;
-}
-
-function BtnTeal(props) {
-  var children=props.children, onClick=props.onClick, full=props.full, style=props.style||{};
-  return (
-    <button onClick={onClick} className="btn-teal"
-      style={Object.assign({ display:"inline-flex", alignItems:"center", justifyContent:"center", gap:8, background:"linear-gradient(135deg,"+T.teal+","+T.tealM+")", color:T.base, border:"none", borderRadius:T.r, padding:"12px 24px", fontSize:14, fontWeight:700, fontFamily:"'Plus Jakarta Sans',system-ui", cursor:"pointer", boxShadow:"0 4px 20px "+T.tealGlow, transition:"filter 0.15s,transform 0.15s", width:full?"100%":undefined }, style)}>
-      {children}
-    </button>
-  );
-}
-
-function BtnGhost(props) {
-  var children=props.children, onClick=props.onClick, full=props.full, dark=props.dark, style=props.style||{};
-  return (
-    <button onClick={onClick} className="btn-ghost"
-      style={Object.assign({ display:"inline-flex", alignItems:"center", justifyContent:"center", gap:8, background:"transparent", color:dark?T.snow70||"rgba(255,255,255,0.7)":T.body, border:"1.5px solid "+(dark?"rgba(255,255,255,0.25)":"#CBD5E1"), borderRadius:T.r, padding:"12px 24px", fontSize:14, fontWeight:600, fontFamily:"'Plus Jakarta Sans',system-ui", cursor:"pointer", transition:"all 0.2s", width:full?"100%":undefined }, style)}>
-      {children}
-    </button>
-  );
-}
-
-function BtnViolet(props) {
-  var children=props.children, onClick=props.onClick, full=props.full, style=props.style||{};
-  return (
-    <button onClick={onClick} className="btn-teal"
-      style={Object.assign({ display:"inline-flex", alignItems:"center", justifyContent:"center", background:"linear-gradient(135deg,"+T.violet+",#6D28D9)", color:"#fff", border:"none", borderRadius:T.r, padding:"12px 24px", fontSize:14, fontWeight:700, fontFamily:"'Plus Jakarta Sans',system-ui", cursor:"pointer", boxShadow:"0 4px 20px "+T.violetGlow, transition:"filter 0.15s,transform 0.15s", width:full?"100%":undefined }, style)}>
-      {children}
-    </button>
-  );
-}
-
-function BtnAmber(props) {
-  var children=props.children, onClick=props.onClick, full=props.full, style=props.style||{};
-  return (
-    <button onClick={onClick} className="btn-teal"
-      style={Object.assign({ display:"inline-flex", alignItems:"center", justifyContent:"center", background:"linear-gradient(135deg,"+T.amber+",#F97316)", color:"#fff", border:"none", borderRadius:T.r, padding:"12px 24px", fontSize:14, fontWeight:700, fontFamily:"'Plus Jakarta Sans',system-ui", cursor:"pointer", boxShadow:"0 4px 20px rgba(245,158,11,0.3)", transition:"filter 0.15s,transform 0.15s", width:full?"100%":undefined }, style)}>
-      {children}
-    </button>
-  );
-}
-
-// --- DATA ----------------------------------------------------
-var WORKERS = [
-  { id:1, name:"Rekha Devi", role:"Domestic Helper", city:"Hyderabad", area:"Banjara Hills", verified:true, score:4.8, reviews:34, exp:7, skills:["Cooking","Cleaning","Child Care","Elderly Care"], bio:"7 years with families in Banjara Hills & Jubilee Hills. Specialist in South-Indian cooking.", salary:"14,000/mo", avi:"RD", color:"#0D9488", avail:"Available", lang:["Telugu","Hindi"], since:"2017", completePct:98, badges:["Top Rated","Police Verified","Background Check"], jobs:[{ emp:"Sharma Residence", role:"Cook & Help", dur:"Jan 2021-Mar 2024", rating:5, review:"Rekha is exceptional - punctual, trustworthy and an outstanding cook.", verified:true, date:"Mar 2024" },{ emp:"Mehta Family, Jubilee Hills", role:"Full House Help", dur:"Jun 2019-Dec 2020", rating:5, review:"Reliable and honest. Always went above and beyond.", verified:true, date:"Dec 2020" }] },
-  { id:2, name:"Rajan Kumar", role:"Plumber", city:"Bengaluru", area:"Whitefield", verified:true, score:4.6, reviews:58, exp:12, skills:["Pipe Fitting","Leak Repair","Bathroom Fixtures","Gas Line"], bio:"Licensed plumber, 12 years. 500+ residential jobs. Emergency calls available 24/7.", salary:"1,200/visit", avi:"RK", color:"#2563EB", avail:"Available", lang:["Kannada","Hindi"], since:"2012", completePct:100, badges:["Licensed","Emergency 24/7","Gas Certified"], jobs:[{ emp:"Green Park Apartments", role:"Resident Plumber", dur:"2022-Present", rating:5, review:"Fixed a burst pipe at midnight without a complaint.", verified:true, date:"2024" }] },
-  { id:3, name:"Suresh Nair", role:"Security Guard", city:"Mumbai", area:"Powai", verified:true, score:4.9, reviews:42, exp:9, skills:["Access Control","CCTV","Emergency Response","Night Patrol"], bio:"Ex-Army. 9 years residential security. Zero incident record 4 years running.", salary:"18,000/mo", avi:"SN", color:"#7C3AED", avail:"Available", lang:["Malayalam","Hindi","English"], since:"2015", completePct:99, badges:["Ex-Army","Police Verified","Fire Safety"], jobs:[{ emp:"Lodha Splendora, Thane", role:"Head Guard", dur:"2020-Present", rating:5, review:"Suresh transformed our building security. Zero incidents in 4 years.", verified:true, date:"2024" }] },
-  { id:4, name:"Priya Singh", role:"Cook", city:"Pune", area:"Koregaon Park", verified:true, score:4.4, reviews:19, exp:4, skills:["North Indian","Tiffin Service","Baking","Meal Prep"], bio:"Punjabi and continental cuisine specialist. Daily tiffin for working couples.", salary:"10,000/mo", avi:"PS", color:"#D97706", avail:"Available", lang:["Hindi","Marathi"], since:"2020", completePct:82, badges:["Tiffin Service"], jobs:[{ emp:"Tiwari Family, Aundh", role:"Cook", dur:"2022-Present", rating:4, review:"Consistent quality, very hygienic. Kids love her food.", verified:true, date:"2024" }] },
-  { id:5, name:"Mohan Das", role:"Electrician", city:"Delhi", area:"Lajpat Nagar", verified:true, score:4.7, reviews:67, exp:15, skills:["Wiring","MCB","Inverter Setup","CCTV","AC Fitting"], bio:"15 years licensed electrician. CPWD-empanelled. Residential and commercial projects.", salary:"900/hr", avi:"MD", color:"#059669", avail:"On Job", lang:["Hindi","English"], since:"2009", completePct:96, badges:["CPWD","Licensed","Verified"], jobs:[{ emp:"DLF Sector 22 Society", role:"Society Electrician", dur:"2019-Present", rating:5, review:"Mohan is our go-to electrician. Professional and reliable.", verified:true, date:"2024" }] },
-  { id:6, name:"Fatima Begum", role:"Elderly Care", city:"Hyderabad", area:"Jubilee Hills", verified:true, score:4.9, reviews:28, exp:6, skills:["Patient Care","Medicine Mgmt","Night Care","Physiotherapy Assist"], bio:"Trained elderly carer, 6 years. Mobility, medication, companionship.", salary:"20,000/mo", avi:"FB", color:"#DC2626", avail:"Available", lang:["Telugu","Urdu","Hindi"], since:"2018", completePct:100, badges:["Trained Carer","Night Care","Police Verified"], jobs:[{ emp:"Reddy Family, Jubilee Hills", role:"Live-in Carer", dur:"2021-Present", rating:5, review:"Fatima is an angel. Our mother is in the best hands.", verified:true, date:"2024" }] },
-];
-
-var CATS = [
-  { icon:"[M]", label:"Domestic Help", n:"4,200+", color:T.tealM },
-  { icon:"[W]", label:"Plumbers", n:"1,800+", color:T.violet },
-  { icon:"[S]", label:"Security", n:"2,100+", color:"#7C3AED" },
-  { icon:"[C]", label:"Cooks", n:"3,400+", color:T.amber },
-  { icon:"[E]", label:"Electricians", n:"2,300+", color:T.green },
-  { icon:"[O]", label:"Elderly Care", n:"1,400+", color:"#EC4899" },
-  { icon:"[D]", label:"Drivers", n:"3,800+", color:"#0EA5E9" },
-  { icon:"[B]", label:"Carpenters", n:"900+", color:"#92400E" },
-];
-
-// --- NAV -----------------------------------------------------
-function Nav(props) {
-  var page=props.page, setPage=props.setPage, user=props.user, setUser=props.setUser;
-  var menuState = useState(false);
-  var menuOpen = menuState[0], setMenuOpen = menuState[1];
-  var onDark = page==="landing" || page==="auth" || page==="enterprise";
-  var navBg = onDark ? "rgba(6,13,24,0.92)" : "rgba(255,255,255,0.92)";
-  var borderC = onDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)";
-  var links = [
-    { id:"search", l:"Find Workers" },
-    { id:"pricing", l:"Pricing" },
-    { id:"for-societies", l:"For Societies" },
-    { id:"for-workers", l:"For Workers" },
-    { id:"enterprise", l:"Enterprise" },
-  ];
-
-  function getDash() {
-    if (!user) return "auth";
-    if (user.type==="worker") return "worker-dashboard";
-    if (user.type==="society") return "society-dashboard";
-    if (user.type==="admin") return "admin";
-    return "employer-dashboard";
-  }
-
-  function AuthButtons() {
-    if (user) {
-      return (
-        <div style={row("center","flex-end",10)}>
+      /* legacy duplicate block removed */
           <div onClick={function(){ setPage(getDash()); }} style={Object.assign(row("center","flex-start",8), { cursor:"pointer", background:onDark?T.glass:T.subtle, borderRadius:T.r, padding:"6px 12px", border:"1px solid "+(onDark?T.glassB:"#E2E8F0") })}>
             <Avi text={user.name[0]} bg={T.tealM} size={26} r={7} />
             <span style={{ fontSize:13, fontWeight:600, color:onDark?"#fff":T.ink }}>{user.name.split(" ")[0]}</span>
@@ -563,8 +357,6 @@ function Nav(props) {
     `}</style>
   );
 }
-*/
-
 // --- HELPERS -------------------------------------------------
 function row(align, justify, gap) {
   return { display:"flex", alignItems:align||"center", justifyContent:justify||"flex-start", gap:gap||0, flexWrap:"wrap" };
@@ -1286,14 +1078,6 @@ function Landing(props) {
   var planWorkers = planWorkersState[0], setPlanWorkers = planWorkersState[1];
   var planModel = planModelState[0], setPlanModel = planModelState[1];
 
-  var comparisonRows = [
-    ["Verification depth", "Phone-only checks", "Profile claims", "Aadhaar + police + trust history"],
-    ["Speed to shortlist", "1-3 days", "High choice, low confidence", "Shortlist in minutes with trust cues"],
-    ["Replacement handling", "Manual follow-up", "Depends on individual", "1-tap replacement workflow"],
-    ["Pricing clarity", "Often negotiated", "Hidden contact friction", "Transparent platform fee logic"],
-    ["Operational visibility", "No unified view", "No compliance layer", "Society + admin dashboards with logs"],
-  ];
-
   var homeCount = Number(planHomes || 0);
   var workerCount = Number(planWorkers || 0);
   var basePlatform = homeCount >= 3 ? 499 : 199;
@@ -1347,12 +1131,12 @@ function Landing(props) {
               </div>
 
               <h1 className="font-display h1-big hero-heading" style={{ fontWeight:800, color:"#fff", marginBottom:16 }}>
-                Shramik: simple and safer local worker hiring.
+                Trusted workers. Zero guesswork. Faster hiring.
               </h1>
-              <p className="hero-subcopy" style={{ marginBottom:22 }}>Shramik solves a real problem in informal hiring: low trust, unclear records, and slow matching. We provide one simple flow for workers, families, and societies.</p>
+              <p className="hero-subcopy" style={{ marginBottom:22 }}>Win trust in minutes with verified profiles, clear reviews, and one-click hiring actions designed for families, societies, and enterprises.</p>
               <div style={{ fontSize:13, color:"rgba(255,255,255,0.78)", fontWeight:700, marginBottom:18 }}>Built for {words[wi]} operations.</div>
               <div style={{ marginBottom:20 }}>
-                <span className="easy-chip">Simple screens - Big actions - Hindi-friendly flow</span>
+                <span className="easy-chip">Simple screens • Big actions • Hindi-friendly flow</span>
               </div>
               <div className="hero-proof-row anim-fadeup-1">
                 {[
@@ -1426,46 +1210,24 @@ function Landing(props) {
         </div>
       </section>
 
-      <section className="sec-pad reveal" data-reveal="true" style={{ padding:"72px 32px", background:"#F7FAFC", borderTop:"1px solid #E8EDF4", borderBottom:"1px solid #E8EDF4" }}>
+      <section className="sec-pad reveal" data-reveal="true" style={{ padding:"54px 32px", background:"#F7FAFC", borderTop:"1px solid #E8EDF4", borderBottom:"1px solid #E8EDF4" }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
-          <div style={Object.assign(row("flex-end","space-between"), { marginBottom:20, gap:14 })}>
-            <div>
-              <h2 className="font-display" style={{ fontSize:34, fontWeight:800, color:T.ink, marginTop:10, letterSpacing:"-1px" }}>Shramik versus the usual hiring flow</h2>
-              <p style={{ marginTop:8, fontSize:14, color:T.muted, maxWidth:760 }}>A simple comparison of trust, speed, and clarity.</p>
-            </div>
-            <BtnTeal onClick={function(){ setPage("pricing"); }} style={{ padding:"10px 14px", fontSize:12.5 }}>See implementation model</BtnTeal>
-          </div>
-
-          <div style={card(14, { overflow:"hidden" })}>
-            <div style={{ display:"grid", gridTemplateColumns:"1.3fr 1fr 1fr 1.25fr", background:"linear-gradient(90deg,#EEF4FF 0%,#F5F0E6 100%)", borderBottom:"1px solid #E2E8F0" }}>
-              {["Decision Area", "Traditional Agency", "Generic Marketplace", "Shramik"].map(function(head, idx) {
-                return (
-                  <div key={head} style={{ padding:"12px 14px", fontSize:12.5, fontWeight:800, color:idx===3 ? "#8A6A2B" : T.body, borderLeft:idx>0?"1px solid #E2E8F0":"none" }}>{head}</div>
-                );
-              })}
-            </div>
-            {comparisonRows.map(function(rowItem) {
+          <div className="grid-3" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
+            {[
+              ["Fast shortlist", "Find relevant workers in minutes with clear trust signals."],
+              ["Verified profiles", "Background details, reviews, and completion signals in one view."],
+              ["Client-ready flow", "Simple actions for first hire, repeat hire, and replacements."]
+            ].map(function(item) {
               return (
-                <div key={rowItem[0]} style={{ display:"grid", gridTemplateColumns:"1.3fr 1fr 1fr 1.25fr", borderBottom:"1px solid #EEF2F7" }}>
-                  <div style={{ padding:"12px 14px", fontSize:12.5, fontWeight:700, color:T.ink }}>{rowItem[0]}</div>
-                  <div style={{ padding:"12px 14px", fontSize:12.5, color:T.muted, borderLeft:"1px solid #EEF2F7" }}>{rowItem[1]}</div>
-                  <div style={{ padding:"12px 14px", fontSize:12.5, color:T.muted, borderLeft:"1px solid #EEF2F7" }}>{rowItem[2]}</div>
-                  <div style={{ padding:"12px 14px", fontSize:12.5, color:"#7A5C22", fontWeight:700, borderLeft:"1px solid #EEF2F7", background:"linear-gradient(90deg,rgba(200,169,106,0.08) 0%,rgba(0,229,195,0.04) 100%)" }}>{rowItem[3]}</div>
+                <div key={item[0]} style={card(16, { borderTop:"3px solid "+T.teal, minHeight:118 })}>
+                  <div className="font-display" style={{ fontSize:18, fontWeight:800, color:T.ink, marginBottom:6 }}>{item[0]}</div>
+                  <p style={{ fontSize:13.5, color:T.muted, lineHeight:1.7 }}>{item[1]}</p>
                 </div>
               );
             })}
           </div>
         </div>
       </section>
-
-      {/* TRUST RIBBON */}
-      <div style={{ background:T.l1, borderTop:"1px solid rgba(255,255,255,0.06)", borderBottom:"1px solid rgba(255,255,255,0.06)", padding:"15px 0", overflow:"hidden" }}>
-        <div className="marquee">
-          {["Prestige Group","DLF Residencies","Brigade Society","Lodha Living","Sobha Complexes","Godrej Properties","Puravankara","Shapoorji Pallonji","Embassy Group","Phoenix Mills","Prestige Group","DLF Residencies","Brigade Society","Lodha Living","Sobha Complexes","Godrej Properties"].map(function(s, i) {
-            return <span key={i} style={{ padding:"0 44px", fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.25)", whiteSpace:"nowrap" }}>{s}</span>;
-          })}
-        </div>
-      </div>
 
       <section className="sec-pad reveal" data-reveal="true" style={{ padding:"64px 32px", background:T.offwhite, borderBottom:"1px solid #E8EDF4" }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
