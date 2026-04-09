@@ -779,6 +779,7 @@ function Nav(props) {
   var easyMode=props.easyMode, setEasyMode=props.setEasyMode;
   var lang=props.lang, setLang=props.setLang;
   var onActionToast=props.onActionToast;
+  var onSignOut=props.onSignOut;
   var menuState = useState(false);
   var menuOpen = menuState[0], setMenuOpen = menuState[1];
   var onDark = page==="landing" || page==="auth" || page==="enterprise";
@@ -814,7 +815,7 @@ function Nav(props) {
             <Avi text={user.name[0]} bg={T.tealM} size={26} r={7} />
             <span style={{ fontSize:13, fontWeight:600, color:onDark?"#fff":T.ink }}>{user.name.split(" ")[0]}</span>
           </div>
-          <button className="compact-btn" onClick={function(){ setUser(null); setPage("landing"); }} style={{ background:"none", border:"none", cursor:"pointer", color:onDark?"rgba(255,255,255,0.45)":T.muted, fontFamily:"'Plus Jakarta Sans',system-ui" }}>{biText("Sign out", true)}</button>
+          <button className="compact-btn" onClick={function(){ if (onSignOut) onSignOut(); else { setUser(null); setPage("landing"); } }} style={{ background:"none", border:"none", cursor:"pointer", color:onDark?"rgba(255,255,255,0.45)":T.muted, fontFamily:"'Plus Jakarta Sans',system-ui" }}>{biText("Sign out", true)}</button>
         </div>
       );
     }
@@ -882,7 +883,7 @@ function Nav(props) {
 
 // --- LANDING -------------------------------------------------
 function Landing(props) {
-  var setPage=props.setPage, setUser=props.setUser;
+  var setPage=props.setPage;
   var easyMode=props.easyMode, setEasyMode=props.setEasyMode;
   var cState = useState({ w:0, s:0, r:0 });
   var counts=cState[0], setCounts=cState[1];
@@ -937,9 +938,8 @@ function Landing(props) {
       return;
     }
     if (type==="finance") {
-      setUser({ name:"Worker Demo", type:"worker", id:120 });
-      setPage("worker-dashboard");
-      setRoadmapMsg("Trust Finance path opened in Worker dashboard.");
+      setPage("auth");
+      setRoadmapMsg("Trust Finance path opened. Complete worker sign-in to continue.");
       return;
     }
     var key = "SHRAMIK-SANDBOX-"+Math.random().toString(36).slice(2,10).toUpperCase();
@@ -1067,9 +1067,9 @@ function Landing(props) {
           </div>
           <div className="role-quick-grid">
             {[
-              ["Worker", "काम चाहिए", T.amber, function(){ setUser({ name:"Worker Demo", type:"worker", id:120 }); setPage("worker-dashboard"); }],
-              ["Family", "मदद चाहिए", T.teal, function(){ setUser({ name:"Family Demo", type:"employer", id:121 }); setPage("search"); }],
-              ["Society", "गेट और रजिस्टर", T.violet, function(){ setUser({ name:"Society Demo", type:"society", id:122 }); setPage("society-dashboard"); }],
+              ["Worker", "काम चाहिए", T.amber, function(){ setPage("auth"); }],
+              ["Family", "मदद चाहिए", T.teal, function(){ setPage("auth"); }],
+              ["Society", "गेट और रजिस्टर", T.violet, function(){ setPage("auth"); }],
               ["Enterprise", "टीम हायरिंग", "#7C3AED", function(){ setPage("enterprise"); }],
             ].map(function(item) {
               return (
@@ -2585,7 +2585,7 @@ function Enterprise(props) {
 
 // --- AUTH ----------------------------------------------------
 function Auth(props) {
-  var setPage=props.setPage, setUser=props.setUser;
+  var setPage=props.setPage, setUser=props.setUser, setWorkerProfile=props.setWorkerProfile;
   var stepState=useState(1), roleState=useState(""), phoneState=useState(""), nameState=useState(""), loadState=useState(false), toastState=useState("");
   var step=stepState[0],setStep=stepState[1];
   var role=roleState[0],setRole=roleState[1];
@@ -2613,8 +2613,24 @@ function Auth(props) {
     setTimeout(function() {
       var names = { worker:name||"Rekha Devi", employer:name||"Sharma Family", society:name||"Prestige Society", admin:"Admin" };
       var types = { worker:"worker", employer:"employer", society:"society", admin:"admin" };
-      var u = { name:names[role]||names.employer, type:types[role]||"employer" };
+      var selectedRole = role || "employer";
+      var u = { name:names[selectedRole]||names.employer, type:types[selectedRole]||"employer", phone:phone };
       setUser(u);
+      if (selectedRole === "worker" && setWorkerProfile) {
+        setWorkerProfile({
+          name: u.name,
+          role: "Domestic Helper",
+          city: "Hyderabad",
+          area: "Local Area",
+          salary: "12,000/mo",
+          exp: 1,
+          bio: "New worker profile. Update your role, city, skills, and salary from Edit Profile.",
+          skills: ["General Work"],
+          avi: initialsFromName(u.name),
+          color: T.amber,
+          jobs: [],
+        });
+      }
       notify("Signed in successfully as "+(role||"employer")+".", "success", "Welcome" );
       var pages = { worker:"worker-dashboard", employer:"employer-dashboard", society:"society-dashboard", admin:"admin" };
       setPage(pages[role]||"employer-dashboard");
@@ -2803,7 +2819,7 @@ function ActionToast(props) {
 }
 
 function WorkerDash(props) {
-  var user=props.user;
+  var user=props.user, workerProfile=props.workerProfile, onSaveWorkerProfile=props.onSaveWorkerProfile;
   var tabState=useState("overview");
   var tab=tabState[0],setTab=tabState[1];
   var toastState=useState("");
@@ -2822,11 +2838,48 @@ function WorkerDash(props) {
   var weekHours=weekHoursState[0],setWeekHours=weekHoursState[1];
   var _checkedIn=checkinState[0],_setCheckedIn=checkinState[1];
   var dailyTasks=taskState[0],setDailyTasks=taskState[1];
-  var w = WORKERS[0];
+
+  var defaultWorker = WORKERS.find(function(item) {
+    return user && user.name && String(item.name || "").toLowerCase() === String(user.name || "").toLowerCase();
+  }) || WORKERS[0];
+
+  var w = Object.assign({}, defaultWorker, workerProfile || {});
+  w.name = String(w.name || (user && user.name) || defaultWorker.name || "Worker");
+  w.avi = String(w.avi || initialsFromName(w.name));
+  w.jobs = Array.isArray(w.jobs) ? w.jobs : [];
+
+  var profileNameState=useState(w.name), profileRoleState=useState(String(w.role || ""));
+  var profileCityState=useState(String(w.city || "")), profileAreaState=useState(String(w.area || ""));
+  var profileSalaryState=useState(String(w.salary || "")), profileExpState=useState(String(w.exp || ""));
+  var profileBioState=useState(String(w.bio || ""));
+  var profileName=profileNameState[0],setProfileName=profileNameState[1];
+  var profileRole=profileRoleState[0],setProfileRole=profileRoleState[1];
+  var profileCity=profileCityState[0],setProfileCity=profileCityState[1];
+  var profileArea=profileAreaState[0],setProfileArea=profileAreaState[1];
+  var profileSalary=profileSalaryState[0],setProfileSalary=profileSalaryState[1];
+  var profileExp=profileExpState[0],setProfileExp=profileExpState[1];
+  var profileBio=profileBioState[0],setProfileBio=profileBioState[1];
 
   function notify(message) {
     setToast(message);
     setTimeout(function(){ setToast(""); }, 2200);
+  }
+
+  function saveProfileChanges() {
+    var normalizedName = profileName.trim() || w.name;
+    var nextProfile = Object.assign({}, w, {
+      name: normalizedName,
+      role: profileRole.trim() || w.role,
+      city: profileCity.trim() || w.city,
+      area: profileArea.trim() || w.area,
+      salary: profileSalary.trim() || w.salary,
+      exp: Number(profileExp || w.exp || 0),
+      bio: profileBio.trim() || w.bio,
+      avi: initialsFromName(normalizedName),
+      jobs: Array.isArray(w.jobs) ? w.jobs : [],
+    });
+    if (onSaveWorkerProfile) onSaveWorkerProfile(nextProfile);
+    notify("Profile changes saved.");
   }
 
   return (
@@ -2865,7 +2918,7 @@ function WorkerDash(props) {
             </div>
             <div style={card(24)}>
               <div className="font-display" style={{ fontSize:15, fontWeight:800, color:T.ink, marginBottom:16 }}>Latest Verified Reviews</div>
-              {w.jobs.map(function(j, i) {
+              {w.jobs.length ? w.jobs.map(function(j, i) {
                 return (
                   <div key={i} style={{ padding:"14px", background:T.subtle, borderRadius:T.r, marginBottom:10, borderLeft:"3px solid "+T.tealM }}>
                     <div style={Object.assign(row("center","space-between"), { marginBottom:5 })}>
@@ -2875,7 +2928,7 @@ function WorkerDash(props) {
                     <p style={{ fontSize:13, color:T.body, fontStyle:"italic" }}>"{j.review}"</p>
                   </div>
                 );
-              })}
+              }) : <div style={{ fontSize:13, color:T.muted }}>No reviews yet. Complete jobs to collect verified reviews.</div>}
             </div>
           </div>
         )}
@@ -2914,7 +2967,7 @@ function WorkerDash(props) {
 
         {tab==="ratings" && (
           <div style={col(14)}>
-            {w.jobs.map(function(j, i) {
+            {w.jobs.length ? w.jobs.map(function(j, i) {
               return (
                 <div key={i} style={card(22, { borderLeft:"3px solid "+T.tealM })}>
                   <div style={Object.assign(row("center","space-between"), { marginBottom:7 })}>
@@ -2924,7 +2977,7 @@ function WorkerDash(props) {
                   <p style={{ fontSize:13.5, color:T.body, fontStyle:"italic", lineHeight:1.65 }}>"{j.review}"</p>
                 </div>
               );
-            })}
+            }) : <div style={{ fontSize:13, color:T.muted }}>No ratings yet.</div>}
           </div>
         )}
 
@@ -2954,20 +3007,36 @@ function WorkerDash(props) {
           <div style={card(28)}>
             <div className="font-display" style={{ fontSize:15, fontWeight:800, color:T.ink, marginBottom:20 }}>Edit Profile</div>
             <div className="grid-2" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
-              {["Full Name","Role","City","Locality","Expected Salary","Years Experience"].map(function(l) {
-                return (
-                  <div key={l}>
-                    <div style={{ fontSize:12.5, fontWeight:600, color:T.muted, marginBottom:6 }}>{trS(l)}</div>
-                    <input defaultValue={l==="Full Name"?w.name:l==="Role"?w.role:l==="City"?w.city:l==="Expected Salary"?w.salary:l==="Years Experience"?String(w.exp):""} style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} placeholder={trS("Enter "+l)} />
-                  </div>
-                );
-              })}
+              <div>
+                <div style={{ fontSize:12.5, fontWeight:600, color:T.muted, marginBottom:6 }}>{trS("Full Name")}</div>
+                <input value={profileName} onChange={function(e){ setProfileName(e.target.value); }} style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} placeholder={trS("Enter Full Name")} />
+              </div>
+              <div>
+                <div style={{ fontSize:12.5, fontWeight:600, color:T.muted, marginBottom:6 }}>{trS("Role")}</div>
+                <input value={profileRole} onChange={function(e){ setProfileRole(e.target.value); }} style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} placeholder={trS("Enter Role")} />
+              </div>
+              <div>
+                <div style={{ fontSize:12.5, fontWeight:600, color:T.muted, marginBottom:6 }}>{trS("City")}</div>
+                <input value={profileCity} onChange={function(e){ setProfileCity(e.target.value); }} style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} placeholder={trS("Enter City")} />
+              </div>
+              <div>
+                <div style={{ fontSize:12.5, fontWeight:600, color:T.muted, marginBottom:6 }}>{trS("Locality")}</div>
+                <input value={profileArea} onChange={function(e){ setProfileArea(e.target.value); }} style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} placeholder={trS("Enter Locality")} />
+              </div>
+              <div>
+                <div style={{ fontSize:12.5, fontWeight:600, color:T.muted, marginBottom:6 }}>{trS("Expected Salary")}</div>
+                <input value={profileSalary} onChange={function(e){ setProfileSalary(e.target.value); }} style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} placeholder={trS("Enter Expected Salary")} />
+              </div>
+              <div>
+                <div style={{ fontSize:12.5, fontWeight:600, color:T.muted, marginBottom:6 }}>{trS("Years Experience")}</div>
+                <input value={profileExp} onChange={function(e){ setProfileExp(e.target.value.replace(/\D/g, "").slice(0, 2)); }} style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} placeholder={trS("Enter Years Experience")} />
+              </div>
             </div>
             <div style={{ marginTop:16 }}>
               <div style={{ fontSize:12.5, fontWeight:600, color:T.muted, marginBottom:6 }}>{trS("About You")}</div>
-              <textarea rows={4} defaultValue={w.bio} style={Object.assign({}, inp, { resize:"vertical" })} />
+              <textarea rows={4} value={profileBio} onChange={function(e){ setProfileBio(e.target.value); }} style={Object.assign({}, inp, { resize:"vertical" })} />
             </div>
-            <BtnTeal onClick={function(){ notify("Profile changes saved."); }} style={{ marginTop:20, padding:"12px 28px" }}>Save Changes</BtnTeal>
+            <BtnTeal onClick={saveProfileChanges} style={{ marginTop:20, padding:"12px 28px" }}>Save Changes</BtnTeal>
           </div>
         )}
 
@@ -3900,7 +3969,7 @@ function Admin(props) {
 
 // --- APP ROOT ------------------------------------------------
 export default function App() {
-  var pageState=useState("landing"), userState=useState(null), viewIdState=useState(null), easyState=useState(false);
+  var pageState=useState("landing"), userState=useState(null), viewIdState=useState(null), easyState=useState(false), workerProfileState=useState(null);
   var appToastState=useState("");
   var dataSyncState=useState({ apiReady:false, synced:false });
   var langState=useState(function(){
@@ -3915,9 +3984,16 @@ export default function App() {
   var user=userState[0],setUser=userState[1];
   var viewId=viewIdState[0],setViewId=viewIdState[1];
   var easyMode=easyState[0],setEasyMode=easyState[1];
+  var workerProfile=workerProfileState[0],setWorkerProfile=workerProfileState[1];
   var appToast=appToastState[0],setAppToast=appToastState[1];
   var dataSync=dataSyncState[0],setDataSync=dataSyncState[1];
   var lang=langState[0],setLang=langState[1];
+
+  function handleSignOut() {
+    setUser(null);
+    setWorkerProfile(null);
+    setPage("landing");
+  }
 
   function appNotify(message) {
     setAppToast(message);
@@ -3994,8 +4070,8 @@ export default function App() {
     if (page==="for-societies")     return <ForSocieties setPage={setPage} setUser={setUser} />;
     if (page==="for-workers")       return <ForWorkers setPage={setPage} />;
     if (page==="enterprise")        return <Enterprise setPage={setPage} />;
-    if (page==="auth")              return <Auth setPage={setPage} setUser={setUser} />;
-    if (page==="worker-dashboard")  return <WorkerDash user={user} />;
+    if (page==="auth")              return <Auth setPage={setPage} setUser={setUser} setWorkerProfile={setWorkerProfile} />;
+    if (page==="worker-dashboard")  return <WorkerDash user={user} workerProfile={workerProfile} onSaveWorkerProfile={setWorkerProfile} />;
     if (page==="employer-dashboard")return <EmployerDash user={user} setPage={setPage} />;
     if (page==="society-dashboard") return <SocietyDash user={user} setPage={setPage} />;
     if (page==="admin")             return <Admin setPage={setPage} setViewId={setViewId} />;
@@ -4005,7 +4081,7 @@ export default function App() {
   return (
     <div className={easyMode?"easy-mode":""} style={{ fontFamily:"'Plus Jakarta Sans',system-ui,sans-serif", minHeight:"100vh", background:T.offwhite }}>
       <GlobalStyles />
-      {page!=="auth" && <Nav page={page} setPage={setPage} user={user} setUser={setUser} easyMode={easyMode} setEasyMode={setEasyMode} lang={lang} setLang={setLang} onActionToast={appNotify} />}
+      {page!=="auth" && <Nav page={page} setPage={setPage} user={user} setUser={setUser} easyMode={easyMode} setEasyMode={setEasyMode} lang={lang} setLang={setLang} onActionToast={appNotify} onSignOut={handleSignOut} />}
       {renderPage()}
       {page==="landing" && <AssistBar easyMode={easyMode} setEasyMode={setEasyMode} setPage={setPage} page={page} onActionToast={appNotify} />}
       <ActionToast message={appToast} />
