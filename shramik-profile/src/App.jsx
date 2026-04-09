@@ -94,6 +94,7 @@ function GlobalStyles() {
   );
 }
 
+/*
 // --- HELPERS -------------------------------------------------
 function row(align, justify, gap) {
   return { display:"flex", alignItems:align||"center", justifyContent:justify||"flex-start", gap:gap||0, flexWrap:"wrap" };
@@ -318,6 +319,8 @@ function Nav(props) {
     </div>
   );
 }
+
+*/
 
 // --- LANDING -------------------------------------------------
 /*
