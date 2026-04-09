@@ -54,6 +54,28 @@ Preview production build locally:
 npm run preview
 ```
 
+## Production Readiness Checklist
+
+Before release, verify all of the following:
+
+1. Frontend URL loads over HTTPS.
+2. Backend health returns success at `/api/health`.
+3. Frontend environment variable `VITE_API_BASE_URL` points to the deployed backend URL.
+4. Backend environment variable `FRONTEND_ORIGIN` matches the deployed frontend URL exactly.
+5. Contact submissions return `201` for valid payloads and `400` for invalid payloads.
+6. No CORS errors appear in browser console during search and submission flows.
+7. Field-testing and UAT sheets are completed:
+	- `FIELD_TESTING_PLAN.md`
+	- `DEPLOYED_UAT_CHECKLIST.md`
+	- `QA_CHECKLIST.md`
+
+Backend production envs (in addition to PORT):
+
+- `NODE_ENV=production`
+- `FRONTEND_ORIGIN=https://your-frontend.onrender.com`
+- `CONTACT_RATE_LIMIT_WINDOW_MS=60000`
+- `CONTACT_RATE_LIMIT_MAX=20`
+
 ## Deployment
 
 ### Option 1: Render (frontend + backend)

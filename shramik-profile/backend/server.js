@@ -9,10 +9,26 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = Number(globalThis.process?.env?.PORT || 8080);
-const FRONTEND_ORIGIN = globalThis.process?.env?.FRONTEND_ORIGIN || "*";
+const NODE_ENV = String(globalThis.process?.env?.NODE_ENV || "development").toLowerCase();
+const FRONTEND_ORIGIN = String(globalThis.process?.env?.FRONTEND_ORIGIN || "*");
+const CONTACT_RATE_LIMIT_WINDOW_MS = Math.max(
+  1000,
+  Number(globalThis.process?.env?.CONTACT_RATE_LIMIT_WINDOW_MS || 60000),
+);
+const CONTACT_RATE_LIMIT_MAX = Math.max(
+  1,
+  Number(globalThis.process?.env?.CONTACT_RATE_LIMIT_MAX || 20),
+);
 
 const workersFile = path.join(__dirname, "data", "workers.json");
 const contactLogFile = path.join(__dirname, "data", "contact-submissions.json");
+
+const allowedOrigins = parseAllowedOrigins(FRONTEND_ORIGIN);
+
+initializeStorage();
+
+app.disable("x-powered-by");
+app.set("trust proxy", 1);
 
 function readJson(filePath, fallback) {
   try {
@@ -27,13 +43,98 @@ function writeJson(filePath, value) {
   fs.writeFileSync(filePath, JSON.stringify(value, null, 2), "utf8");
 }
 
-app.use(cors({ origin: FRONTEND_ORIGIN === "*" ? true : FRONTEND_ORIGIN }));
+function initializeStorage() {
+  const dataDir = path.join(__dirname, "data");
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+  if (!fs.existsSync(workersFile)) {
+    writeJson(workersFile, []);
+  }
+  if (!fs.existsSync(contactLogFile)) {
+    writeJson(contactLogFile, []);
+  }
+}
+
+function parseAllowedOrigins(rawValue) {
+  if (!rawValue || rawValue.trim() === "") return ["*"];
+  return rawValue
+    .split(",")
+    .map(function (item) {
+      return item.trim();
+    })
+    .filter(Boolean);
+}
+
+function isAllowedOrigin(origin) {
+  if (allowedOrigins.includes("*")) return true;
+  return allowedOrigins.includes(origin);
+}
+
+function createRateLimiter(config) {
+  const bucket = new Map();
+  const windowMs = config.windowMs;
+  const max = config.max;
+
+  return function rateLimiter(req, res, next) {
+    const key = String(req.ip || req.headers["x-forwarded-for"] || "unknown");
+    const now = Date.now();
+    const current = bucket.get(key);
+
+    if (!current || now > current.resetAt) {
+      bucket.set(key, { count: 1, resetAt: now + windowMs });
+      next();
+      return;
+    }
+
+    if (current.count >= max) {
+      res.status(429).json({ message: "too many requests, please retry later" });
+      return;
+    }
+
+    current.count += 1;
+    next();
+  };
+}
+
+function sanitizeText(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+app.use(function (_req, res, next) {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+  res.setHeader("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
+  next();
+});
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || isAllowedOrigin(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error("blocked by cors"));
+  },
+}));
 app.use(express.json({ limit: "1mb" }));
+
+app.get("/", function (_req, res) {
+  res.json({
+    service: "shramik-backend",
+    status: "ok",
+    health: "/api/health",
+  });
+});
 
 app.get("/api/health", function (_req, res) {
   res.json({
     status: "ok",
     service: "shramik-backend",
+    env: NODE_ENV,
+    uptimeSeconds: Math.floor(globalThis.process.uptime()),
     timestamp: new Date().toISOString(),
   });
 });
@@ -68,6 +169,10 @@ app.get("/api/workers", function (req, res) {
 app.get("/api/workers/:id", function (req, res) {
   const workers = readJson(workersFile, []);
   const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ message: "invalid worker id" });
+    return;
+  }
   const worker = workers.find(function (entry) { return Number(entry.id) === id; });
 
   if (!worker) {
@@ -78,13 +183,34 @@ app.get("/api/workers/:id", function (req, res) {
   res.json(worker);
 });
 
-app.post("/api/contact", function (req, res) {
-  const name = String(req.body?.name || "").trim();
-  const phone = String(req.body?.phone || "").trim();
-  const message = String(req.body?.message || "").trim();
+const contactRateLimiter = createRateLimiter({
+  windowMs: CONTACT_RATE_LIMIT_WINDOW_MS,
+  max: CONTACT_RATE_LIMIT_MAX,
+});
+
+app.post("/api/contact", contactRateLimiter, function (req, res) {
+  const name = sanitizeText(req.body?.name);
+  const phone = sanitizeText(req.body?.phone);
+  const message = sanitizeText(req.body?.message);
+  const phoneDigits = phone.replace(/\D/g, "");
 
   if (!name || !phone || !message) {
     res.status(400).json({ message: "name, phone, and message are required" });
+    return;
+  }
+
+  if (name.length < 2 || name.length > 80) {
+    res.status(400).json({ message: "name must be between 2 and 80 characters" });
+    return;
+  }
+
+  if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+    res.status(400).json({ message: "phone must be between 10 and 15 digits" });
+    return;
+  }
+
+  if (message.length < 5 || message.length > 1000) {
+    res.status(400).json({ message: "message must be between 5 and 1000 characters" });
     return;
   }
 
@@ -92,7 +218,7 @@ app.post("/api/contact", function (req, res) {
   const next = {
     id: Date.now(),
     name,
-    phone,
+    phone: phoneDigits,
     message,
     createdAt: new Date().toISOString(),
   };
@@ -110,6 +236,31 @@ app.use(function (_req, res) {
   res.status(404).json({ message: "route not found" });
 });
 
-app.listen(PORT, function () {
+app.use(function (err, _req, res) {
+  if (err && err.message === "blocked by cors") {
+    res.status(403).json({ message: "origin not allowed" });
+    return;
+  }
+  if (NODE_ENV !== "test") {
+    console.error("unhandled error", err);
+  }
+  res.status(500).json({ message: "internal server error" });
+});
+
+const server = app.listen(PORT, function () {
   console.log(`shramik backend listening on http://localhost:${PORT}`);
 });
+
+function shutdown(signal) {
+  console.log(`received ${signal}, shutting down`);
+  server.close(function () {
+    globalThis.process.exit(0);
+  });
+  setTimeout(function () {
+    globalThis.process.exit(1);
+  }, 10000).unref();
+}
+
+globalThis.process.on("SIGINT", function () { shutdown("SIGINT"); });
+globalThis.process.on("SIGTERM", function () { shutdown("SIGTERM"); });
+
