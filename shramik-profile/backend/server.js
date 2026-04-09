@@ -22,6 +22,7 @@ const CONTACT_RATE_LIMIT_MAX = Math.max(
 
 const workersFile = path.join(__dirname, "data", "workers.json");
 const contactLogFile = path.join(__dirname, "data", "contact-submissions.json");
+const feedbackLogFile = path.join(__dirname, "data", "feedback-submissions.json");
 
 const allowedOrigins = parseAllowedOrigins(FRONTEND_ORIGIN);
 
@@ -53,6 +54,9 @@ function initializeStorage() {
   }
   if (!fs.existsSync(contactLogFile)) {
     writeJson(contactLogFile, []);
+  }
+  if (!fs.existsSync(feedbackLogFile)) {
+    writeJson(feedbackLogFile, []);
   }
 }
 
@@ -225,6 +229,48 @@ app.post("/api/contact", contactRateLimiter, function (req, res) {
 
   submissions.unshift(next);
   writeJson(contactLogFile, submissions.slice(0, 500));
+
+  res.status(201).json({
+    message: "saved",
+    submissionId: next.id,
+  });
+});
+
+app.post("/api/feedback", contactRateLimiter, function (req, res) {
+  const name = sanitizeText(req.body?.name || "Anonymous");
+  const message = sanitizeText(req.body?.message);
+  const page = sanitizeText(req.body?.page || "unknown");
+  const userType = sanitizeText(req.body?.userType || "guest");
+  const rating = Number(req.body?.rating || 0);
+
+  if (!message) {
+    res.status(400).json({ message: "message is required" });
+    return;
+  }
+
+  if (message.length < 5 || message.length > 1000) {
+    res.status(400).json({ message: "message must be between 5 and 1000 characters" });
+    return;
+  }
+
+  if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+    res.status(400).json({ message: "rating must be between 1 and 5" });
+    return;
+  }
+
+  const submissions = readJson(feedbackLogFile, []);
+  const next = {
+    id: Date.now(),
+    name: name.slice(0, 80),
+    message,
+    rating,
+    page: page.slice(0, 80),
+    userType: userType.slice(0, 40),
+    createdAt: new Date().toISOString(),
+  };
+
+  submissions.unshift(next);
+  writeJson(feedbackLogFile, submissions.slice(0, 1000));
 
   res.status(201).json({
     message: "saved",

@@ -55,6 +55,18 @@ async function apiSubmitContact(payload) {
   return res.json().catch(function(){ return { ok:true }; });
 }
 
+async function apiSubmitFeedback(payload) {
+  var res = await fetch(apiUrl("/api/feedback"), {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify(payload || {}),
+  });
+  if (!res.ok) {
+    throw new Error("Feedback API failed");
+  }
+  return res.json().catch(function(){ return { ok:true }; });
+}
+
 function card(padding, extra) {
   return Object.assign({
     background:T.white,
@@ -2539,8 +2551,10 @@ function Enterprise(props) {
 function Auth(props) {
   var setPage=props.setPage, setUser=props.setUser, setWorkerProfile=props.setWorkerProfile;
   var stepState=useState(1), roleState=useState(""), phoneState=useState(""), nameState=useState(""), loadState=useState(false), toastState=useState("");
-  var workerSkillState=useState("Domestic Helper"), workerSalaryState=useState(""), workerAreaState=useState(""), workerAvailabilityState=useState("Available");
-  var employerNeedState=useState("Domestic Help"), employerBudgetState=useState(""), employerAreaState=useState("");
+  var workerSkillState=useState(""), workerSalaryState=useState(""), workerAreaState=useState(""), workerAvailabilityState=useState("Available");
+  var workerExpState=useState(""), workerSpecializationState=useState(""), workerCityState=useState("");
+  var employerNeedState=useState(""), employerBudgetState=useState(""), employerAreaState=useState(""), employerCityState=useState("");
+  var locationLoadState=useState(false);
   var step=stepState[0],setStep=stepState[1];
   var role=roleState[0],setRole=roleState[1];
   var phone=phoneState[0],setPhone=phoneState[1];
@@ -2551,9 +2565,14 @@ function Auth(props) {
   var workerSalary=workerSalaryState[0],setWorkerSalary=workerSalaryState[1];
   var workerArea=workerAreaState[0],setWorkerArea=workerAreaState[1];
   var workerAvailability=workerAvailabilityState[0],setWorkerAvailability=workerAvailabilityState[1];
+  var workerExp=workerExpState[0],setWorkerExp=workerExpState[1];
+  var workerSpecialization=workerSpecializationState[0],setWorkerSpecialization=workerSpecializationState[1];
+  var workerCity=workerCityState[0],setWorkerCity=workerCityState[1];
   var employerNeed=employerNeedState[0],setEmployerNeed=employerNeedState[1];
   var employerBudget=employerBudgetState[0],setEmployerBudget=employerBudgetState[1];
   var employerArea=employerAreaState[0],setEmployerArea=employerAreaState[1];
+  var employerCity=employerCityState[0],setEmployerCity=employerCityState[1];
+  var locationLoading=locationLoadState[0],setLocationLoading=locationLoadState[1];
   var otpState=useState(["","","","","",""]);
   var otp=otpState[0],setOtp=otpState[1];
 
@@ -2569,12 +2588,66 @@ function Auth(props) {
     { id:"admin",    icon:"A", label:"Admin",              sub:"Platform admin",          color:"#94A3B8" },
   ];
 
+  function captureCurrentLocation(targetRole) {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      notify("Location is not available in this browser.", "warn", "Location unavailable");
+      return;
+    }
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      var loc = cityFromCoords(pos.coords.latitude, pos.coords.longitude);
+      var pickedCity = loc.city || "";
+      var pickedArea = loc.district || loc.districtName || "";
+      if (targetRole === "worker") {
+        setWorkerCity(pickedCity);
+        setWorkerArea(pickedArea || workerArea);
+      } else {
+        setEmployerCity(pickedCity);
+        setEmployerArea(pickedArea || employerArea);
+      }
+      setLocationLoading(false);
+      notify("Location added to onboarding form.", "success", "Location captured");
+    }, function() {
+      setLocationLoading(false);
+      notify("Could not fetch location. You can type it manually.", "warn", "Location failed");
+    }, { enableHighAccuracy:true, timeout:12000, maximumAge:120000 });
+  }
+
   function finish() {
+    if (!role) {
+      notify("Please select a role.", "warn", "Missing role");
+      return;
+    }
+    if (role === "worker") {
+      if (!workerSkill) {
+        notify("Please choose your work type.", "warn", "Missing details");
+        return;
+      }
+      if (!workerExp) {
+        notify("Please enter your experience.", "warn", "Missing details");
+        return;
+      }
+      if (!workerSpecialization.trim()) {
+        notify("Please enter your specialization.", "warn", "Missing details");
+        return;
+      }
+    }
+    if (role === "employer") {
+      if (!employerNeed) {
+        notify("Please choose requirement type.", "warn", "Missing details");
+        return;
+      }
+      if (!employerArea.trim()) {
+        notify("Please enter your area.", "warn", "Missing details");
+        return;
+      }
+    }
+
     setLoading(true);
     setTimeout(function() {
-      var names = { worker:name||"Rekha Devi", employer:name||"Sharma Family", society:name||"Prestige Society", admin:"Admin" };
+      var names = { worker:name, employer:name, society:name, admin:name };
       var types = { worker:"worker", employer:"employer", society:"society", admin:"admin" };
-      var selectedRole = role || "employer";
+      var selectedRole = role;
       var u = {
         name:names[selectedRole]||names.employer,
         type:types[selectedRole]||"employer",
@@ -2582,18 +2655,20 @@ function Auth(props) {
         need: selectedRole === "employer" ? employerNeed : undefined,
         budget: selectedRole === "employer" ? employerBudget : undefined,
         area: selectedRole === "employer" ? employerArea : undefined,
+        city: selectedRole === "employer" ? employerCity : undefined,
       };
       setUser(u);
       if (selectedRole === "worker" && setWorkerProfile) {
+        var specializationSkills = workerSpecialization.split(",").map(function(item){ return item.trim(); }).filter(Boolean);
         setWorkerProfile({
           name: u.name,
-          role: workerSkill || "Domestic Helper",
-          city: "Hyderabad",
-          area: workerArea || "Local Area",
-          salary: (workerSalary ? workerSalary + "/mo" : "12,000/mo"),
-          exp: 1,
+          role: workerSkill,
+          city: workerCity || "Unspecified",
+          area: workerArea || "Unspecified",
+          salary: (workerSalary ? workerSalary + "/mo" : "Not provided"),
+          exp: Number(workerExp || 0),
           bio: "Worker profile created. Keep this updated to get better and faster job matches.",
-          skills: [workerSkill || "General Work"],
+          skills: specializationSkills.length ? specializationSkills : [workerSkill],
           avi: initialsFromName(u.name),
           color: T.amber,
           avail: workerAvailability,
@@ -2695,16 +2770,32 @@ function Auth(props) {
                   <div>
                     <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Work type</div>
                     <select value={workerSkill} onChange={function(e){ setWorkerSkill(e.target.value); }} style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }}>
+                      <option value="" style={{ color:T.ink }}>Select work type</option>
                       {["Domestic Helper","Cook","Driver","Plumber","Electrician","Security Guard","Caregiver"].map(function(opt){ return <option key={opt} style={{ color:T.ink }}>{opt}</option>; })}
                     </select>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Experience (years)</div>
+                    <input value={workerExp} onChange={function(e){ setWorkerExp(e.target.value.replace(/\D/g,"").slice(0,2)); }} placeholder="e.g. 5" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }} />
                   </div>
                   <div>
                     <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Expected pay / month</div>
                     <input value={workerSalary} onChange={function(e){ setWorkerSalary(e.target.value.replace(/\D/g,"").slice(0,6)); }} placeholder="12000" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }} />
                   </div>
                   <div>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Specialization</div>
+                    <input value={workerSpecialization} onChange={function(e){ setWorkerSpecialization(e.target.value); }} placeholder="Cooking, Child care" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>City</div>
+                    <input value={workerCity} onChange={function(e){ setWorkerCity(e.target.value); }} placeholder="City" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }} />
+                  </div>
+                  <div style={{ gridColumn:"1 / span 2" }}>
                     <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Area</div>
                     <input value={workerArea} onChange={function(e){ setWorkerArea(e.target.value); }} placeholder="Your locality" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }} />
+                  </div>
+                  <div style={{ gridColumn:"1 / span 2" }}>
+                    <button type="button" onClick={function(){ captureCurrentLocation("worker"); }} disabled={locationLoading} style={{ border:"1px solid rgba(255,255,255,0.2)", background:"rgba(255,255,255,0.08)", color:"#fff", borderRadius:T.r, padding:"8px 12px", fontSize:12.5, fontWeight:700, cursor:locationLoading?"not-allowed":"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" }}>{locationLoading?"Fetching location...":"Use current location"}</button>
                   </div>
                   <div>
                     <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Availability</div>
@@ -2720,6 +2811,7 @@ function Auth(props) {
                   <div>
                     <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Need help for</div>
                     <select value={employerNeed} onChange={function(e){ setEmployerNeed(e.target.value); }} style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }}>
+                      <option value="" style={{ color:T.ink }}>Select requirement</option>
                       {["Domestic Help","Cook","Driver","Elder Care","Security","Plumber","Electrician"].map(function(opt){ return <option key={opt} style={{ color:T.ink }}>{opt}</option>; })}
                     </select>
                   </div>
@@ -2728,8 +2820,11 @@ function Auth(props) {
                     <input value={employerBudget} onChange={function(e){ setEmployerBudget(e.target.value.replace(/\D/g,"").slice(0,6)); }} placeholder="15000" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }} />
                   </div>
                   <div style={{ gridColumn:"1 / span 2" }}>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>City</div>
+                    <input value={employerCity} onChange={function(e){ setEmployerCity(e.target.value); }} placeholder="City" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui", marginBottom:10 }} />
                     <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Area</div>
                     <input value={employerArea} onChange={function(e){ setEmployerArea(e.target.value); }} placeholder="Locality / city" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }} />
+                    <button type="button" onClick={function(){ captureCurrentLocation("employer"); }} disabled={locationLoading} style={{ marginTop:10, border:"1px solid rgba(255,255,255,0.2)", background:"rgba(255,255,255,0.08)", color:"#fff", borderRadius:T.r, padding:"8px 12px", fontSize:12.5, fontWeight:700, cursor:locationLoading?"not-allowed":"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" }}>{locationLoading?"Fetching location...":"Use current location"}</button>
                   </div>
                 </div>
               )}
@@ -2828,6 +2923,111 @@ function ActionToast(props) {
         <div className="toast-text">{trS(normalizedText)}</div>
       </div>
     </div>
+  );
+}
+
+function FeedbackWidget(props) {
+  var page = props.page;
+  var user = props.user;
+  var onActionToast = props.onActionToast;
+  var openState = useState(false), sendState = useState(false), nameState = useState(""), msgState = useState(""), ratingState = useState(5);
+  var open = openState[0], setOpen = openState[1];
+  var sending = sendState[0], setSending = sendState[1];
+  var feedbackName = nameState[0], setFeedbackName = nameState[1];
+  var feedbackMsg = msgState[0], setFeedbackMsg = msgState[1];
+  var rating = ratingState[0], setRating = ratingState[1];
+
+  useEffect(function() {
+    if (user && user.name && !feedbackName) {
+      setFeedbackName(String(user.name));
+    }
+  }, [user, feedbackName, setFeedbackName]);
+
+  async function submitFeedback() {
+    var trimmed = String(feedbackMsg || "").trim();
+    if (trimmed.length < 5) {
+      if (onActionToast) onActionToast({ title:"Feedback", type:"warn", text:"Please add a little more detail." });
+      return;
+    }
+    setSending(true);
+    try {
+      await apiSubmitFeedback({
+        name: String(feedbackName || "Anonymous").trim(),
+        message: trimmed,
+        rating: Number(rating || 5),
+        page: String(page || "unknown"),
+        userType: user && user.type ? String(user.type) : "guest",
+      });
+      setFeedbackMsg("");
+      setRating(5);
+      setOpen(false);
+      if (onActionToast) onActionToast({ title:"Feedback", type:"success", text:"Thanks. Your feedback is saved." });
+    } catch {
+      if (onActionToast) onActionToast({ title:"Feedback", type:"warn", text:"Could not save feedback now." });
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={function(){ setOpen(true); }}
+        aria-label="Open feedback form"
+        style={{
+          position:"fixed", right:16, bottom:16, zIndex:1200,
+          border:"1px solid rgba(0,0,0,0.08)", borderRadius:999,
+          padding:"10px 14px", background:T.teal, color:T.base,
+          fontSize:12.5, fontWeight:800, boxShadow:"0 10px 26px rgba(0,0,0,.18)", cursor:"pointer",
+          fontFamily:"'Plus Jakarta Sans',system-ui"
+        }}
+      >
+        Share Feedback
+      </button>
+
+      {open && (
+        <div style={{ position:"fixed", inset:0, zIndex:1300, background:"rgba(2,6,23,.42)", display:"flex", alignItems:"center", justifyContent:"center", padding:14 }}>
+          <div style={{ width:"100%", maxWidth:460, background:T.white, border:"1px solid #E5EAF0", borderRadius:T.rM, boxShadow:T.s3, padding:16 }}>
+            <div style={Object.assign(row("center","space-between"), { marginBottom:10 })}>
+              <div className="font-display" style={{ color:T.ink, fontSize:18, fontWeight:800 }}>Your Feedback</div>
+              <button type="button" onClick={function(){ if (!sending) setOpen(false); }} style={{ border:"none", background:"transparent", cursor:"pointer", color:T.muted, fontWeight:700, fontSize:14, fontFamily:"'Plus Jakarta Sans',system-ui" }}>Close</button>
+            </div>
+
+            <div style={{ fontSize:12, color:T.muted, marginBottom:8 }}>Rate your current page</div>
+            <div style={Object.assign(row("center","flex-start",8), { marginBottom:10, flexWrap:"wrap" })}>
+              {[1,2,3,4,5].map(function(star) {
+                var active = star <= rating;
+                return (
+                  <button key={star} type="button" onClick={function(){ setRating(star); }} style={{ minWidth:34, height:32, borderRadius:8, border:"1px solid "+(active?T.teal:"#D1D9E6"), background:active?T.tealGlow:"#fff", color:active?T.teal:T.muted, cursor:"pointer", fontWeight:800, fontFamily:"'Plus Jakarta Sans',system-ui" }}>{star}</button>
+                );
+              })}
+            </div>
+
+            <input
+              value={feedbackName}
+              onChange={function(e){ setFeedbackName(e.target.value); }}
+              placeholder="Your name (optional)"
+              style={Object.assign({}, inp, { marginBottom:10, height:40 })}
+            />
+            <textarea
+              value={feedbackMsg}
+              onChange={function(e){ setFeedbackMsg(e.target.value); }}
+              placeholder="Tell us what worked and what to improve"
+              style={{ width:"100%", minHeight:110, resize:"vertical", border:"1px solid #D5DEE9", borderRadius:T.r, padding:"10px 12px", color:T.ink, fontSize:13.5, fontFamily:"'Plus Jakarta Sans',system-ui", outline:"none", marginBottom:12 }}
+            />
+
+            <div style={Object.assign(row("center","space-between",10), { flexWrap:"wrap" })}>
+              <div style={{ fontSize:11.5, color:T.muted }}>Page: {String(page || "unknown")}</div>
+              <div style={row("center","flex-end",8)}>
+                <BtnGhost onClick={function(){ if (!sending) setOpen(false); }} style={{ padding:"8px 12px" }}>Cancel</BtnGhost>
+                <BtnTeal onClick={submitFeedback} disabled={sending} style={{ padding:"8px 14px" }}>{sending ? "Saving..." : "Submit"}</BtnTeal>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -4097,6 +4297,7 @@ export default function App() {
       {page!=="auth" && <Nav page={page} setPage={setPage} user={user} setUser={setUser} easyMode={easyMode} setEasyMode={setEasyMode} lang={lang} setLang={setLang} onActionToast={appNotify} onSignOut={handleSignOut} />}
       {renderPage()}
       {page==="landing" && <AssistBar easyMode={easyMode} setEasyMode={setEasyMode} setPage={setPage} page={page} onActionToast={appNotify} />}
+      <FeedbackWidget page={page} user={user} onActionToast={appNotify} />
       <ActionToast message={appToast} />
     </div>
   );
