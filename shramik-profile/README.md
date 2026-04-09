@@ -116,6 +116,8 @@ Testing notes:
 - The frontend will use the live backend only when `VITE_API_BASE_URL` points to the deployed API URL.
 - If the backend is unavailable, the search page falls back to local data and shows that state in the UI.
 - The backend should return `status: ok` at `/api/health` before field testing starts.
+- Keep `VITE_TEST_MODE=true` for panel/UAT to enable sample profile shortcuts in Auth.
+- Set `VITE_TEST_MODE=false` for a stricter production experience without test shortcuts.
 
 ### Option 3: Netlify (frontend only)
 

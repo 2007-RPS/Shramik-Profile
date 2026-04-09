@@ -214,6 +214,9 @@ var liquidControlStyle = { background:"linear-gradient(180deg,rgba(255,255,255,.
 var API_BASE_URL = (typeof import.meta !== "undefined" && import.meta && import.meta.env && import.meta.env.VITE_API_BASE_URL
   ? String(import.meta.env.VITE_API_BASE_URL)
   : "http://localhost:8080").replace(/\/$/, "");
+var IS_TEST_MODE = (typeof import.meta !== "undefined" && import.meta && import.meta.env && Object.prototype.hasOwnProperty.call(import.meta.env, "VITE_TEST_MODE")
+  ? String(import.meta.env.VITE_TEST_MODE)
+  : "true").toLowerCase() !== "false";
 
 function apiUrl(path) {
   return API_BASE_URL + path;
@@ -446,7 +449,10 @@ var HI_TEXT = {
   "A verification code will be sent to your registered mobile number.":"आपके पंजीकृत मोबाइल पर सत्यापन कोड भेजा जाएगा।",
   "Enter OTP":"ओटीपी दर्ज करें",
   "Your full name":"पूरा नाम",
-  "Demo mode - any OTP works":"डेमो मोड - कोई भी ओटीपी चलेगा",
+  "Test mode - use any 4-digit OTP":"टेस्ट मोड - कोई भी 4 अंकों का ओटीपी इस्तेमाल करें",
+  "Use sample worker profile":"सैंपल वर्कर प्रोफाइल इस्तेमाल करें",
+  "Use sample employer profile":"सैंपल नियोक्ता प्रोफाइल इस्तेमाल करें",
+  "Use sample society profile":"सैंपल सोसायटी प्रोफाइल इस्तेमाल करें",
   "Find Verified Workers":"सत्यापित कामगार खोजें",
   "Smart discovery with proximity, trust intelligence, shortlist, compare, and interview scheduling.":"लोकेशन, ट्रस्ट स्कोर, शॉर्टलिस्ट, तुलना और इंटरव्यू शेड्यूल के साथ स्मार्ट खोज।",
   "Preference profile:":"पसंद प्रोफाइल:",
@@ -2288,7 +2294,7 @@ function ForSocieties(props) {
               <p style={{ fontSize:16, color:T.muted, lineHeight:1.8, marginBottom:36, maxWidth:460 }}>Replace fragmented resident groups and manual gate registers with a formal workforce registry, resident-safe approvals, and auditable entry control.</p>
               <div style={row("center","flex-start",14)}>
                 <BtnViolet onClick={function(){ setUser({ name:"Prestige Society", type:"society", id:99 }); setPage("society-dashboard"); }} style={{ padding:"14px 28px" }}>Set Up Society Hub</BtnViolet>
-                <BtnGhost onClick={function(){ setUser({ name:"Demo Society", type:"society", id:100 }); setPage("society-dashboard"); }} >View live demo</BtnGhost>
+                <BtnGhost onClick={function(){ setUser({ name:"Sample Society", type:"society", id:100 }); setPage("society-dashboard"); }} >View sample workspace</BtnGhost>
               </div>
             </div>
             <div className="lift" style={card(26, { border:"1px solid "+T.violet+"25", boxShadow:"0 0 40px "+T.violetGlow })}>
@@ -2379,7 +2385,7 @@ function ForSocieties(props) {
                   </div>
                 );
               })}
-              <BtnViolet onClick={function(){ setUser({ name:"Impact Demo Society", type:"society", id:101 }); setPage("society-dashboard"); }} full={true} style={{ marginTop:6 }}>Launch Impact Demo</BtnViolet>
+              <BtnViolet onClick={function(){ setUser({ name:"Impact Sample Society", type:"society", id:101 }); setPage("society-dashboard"); }} full={true} style={{ marginTop:6 }}>Launch sample dashboard</BtnViolet>
             </div>
           </div>
         </div>
@@ -2637,6 +2643,42 @@ function Auth(props) {
     }, 1400);
   }
 
+  function startSample(roleId) {
+    var sampleMap = {
+      worker: { name:"Rekha Devi", type:"worker" },
+      employer: { name:"Sharma Family", type:"employer" },
+      society: { name:"Prestige Society", type:"society" },
+    };
+    var target = sampleMap[roleId] || sampleMap.employer;
+    if (roleId === "worker" && setWorkerProfile) {
+      setWorkerProfile({
+        name: target.name,
+        role: "Domestic Helper",
+        city: "Hyderabad",
+        area: "Banjara Hills",
+        salary: "14,000/mo",
+        exp: 7,
+        bio: "Sample test profile for UAT and panel walkthroughs.",
+        skills: ["Cooking", "Cleaning", "Child Care"],
+        avi: initialsFromName(target.name),
+        color: T.amber,
+        jobs: [
+          {
+            emp: "Sharma Residence",
+            role: "Cook & Home Support",
+            dur: "2024-Present",
+            rating: 5,
+            review: "Reliable, punctual, and very good with daily routines.",
+          },
+        ],
+      });
+    }
+    setUser(target);
+    if (roleId === "worker") setPage("worker-dashboard");
+    else if (roleId === "society") setPage("society-dashboard");
+    else setPage("employer-dashboard");
+  }
+
   function updateOtp(i, val) {
     var next = otp.slice();
     next[i] = val;
@@ -2686,6 +2728,15 @@ function Auth(props) {
                 })}
               </div>
               <BtnTeal onClick={function(){ if(role) { setStep(2); notify("Role selected: "+role+".", "info", "Step complete"); } }} disabled={!role} full={true} style={{ padding:"13px", fontSize:14.5 }}>Continue</BtnTeal>
+              {IS_TEST_MODE && (
+                <div style={{ display:"grid", gridTemplateColumns:"1fr", gap:8, marginTop:12 }}>
+                  <BtnGhost dark={true} onClick={function(){ startSample("worker"); }} full={true} style={{ padding:"10px 14px", fontSize:12.5 }}>{trS("Use sample worker profile")}</BtnGhost>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+                    <BtnGhost dark={true} onClick={function(){ startSample("employer"); }} full={true} style={{ padding:"10px 14px", fontSize:12.5 }}>{trS("Use sample employer profile")}</BtnGhost>
+                    <BtnGhost dark={true} onClick={function(){ startSample("society"); }} full={true} style={{ padding:"10px 14px", fontSize:12.5 }}>{trS("Use sample society profile")}</BtnGhost>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -2723,7 +2774,7 @@ function Auth(props) {
               <BtnTeal onClick={finish} disabled={otp.join("").length<4 || !name.trim() || loading} full={true} style={{ padding:"13px" }}>
                 {loading?"Verifying...":"Enter Dashboard"}
               </BtnTeal>
-              <p style={{ fontSize:11.5, color:"rgba(255,255,255,0.3)", textAlign:"center", marginTop:14 }}>{trS("Demo mode - any OTP works")}</p>
+              {IS_TEST_MODE && <p style={{ fontSize:11.5, color:"rgba(255,255,255,0.3)", textAlign:"center", marginTop:14 }}>{trS("Test mode - use any 4-digit OTP")}</p>}
             </div>
           )}
         </div>
