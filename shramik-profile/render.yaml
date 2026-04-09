@@ -12,13 +12,11 @@ services:
       - key: FRONTEND_ORIGIN
         value: https://shramik-web.onrender.com
 
-  - type: web
+  - type: static_site
     name: shramik-web
-    env: static
     rootDir: shramik-profile
     buildCommand: npm run build
     staticPublishPath: dist
-    plan: free
     envVars:
       - key: VITE_API_BASE_URL
         value: https://shramik-api.onrender.com
