@@ -27,7 +27,6 @@ const T = {
   r:"10px", rM:"16px", rL:"22px", rX:"32px",
 };
 
-const IS_TEST_MODE = (String(import.meta.env.VITE_TEST_MODE || "").toLowerCase() === "true") || import.meta.env.DEV;
 const API_BASE = String(import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
 function apiUrl(path) {
@@ -856,11 +855,6 @@ function Landing(props) {
 
   return (
     <div>
-      {IS_TEST_MODE && (
-        <div style={{ position:"fixed", top:72, right:14, zIndex:230, background:"rgba(6,13,24,0.92)", border:"1px solid rgba(0,229,195,0.25)", borderRadius:999, padding:"7px 12px", fontSize:11.5, fontWeight:700, color:T.teal, backdropFilter:"blur(10px)", WebkitBackdropFilter:"blur(10px)" }}>
-          TEST MODE ACTIVE
-        </div>
-      )}
       {/* HERO */}
       <section className="dot-bg" style={{ minHeight:"calc(100vh - 60px)", padding:"20px 24px 16px", overflow:"hidden", position:"relative", display:"flex", alignItems:"center", background:"linear-gradient(135deg,#082033 0%,#10304A 52%,#1A4663 100%)" }}>
         <div style={{ position:"absolute", top:"12%", left:"6%", width:360, height:360, borderRadius:"50%", background:"radial-gradient(circle,rgba(0,229,195,0.16) 0%,transparent 72%)", pointerEvents:"none", filter:"blur(36px)" }} />
@@ -945,7 +939,7 @@ function Landing(props) {
                 </div>
                 <BtnTeal onClick={function(){ setPage("search"); }} full={true} style={{ padding:"10px", fontSize:13 }}>View Profile and Hire</BtnTeal>
               </div>
-              <div style={{ position:"absolute", top:-18, right:-24, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(0,229,195,0.3)", borderRadius:12, padding:"9px 14px", transform:"rotate(2deg)", fontSize:12, color:"rgba(255,255,255,0.8)", fontWeight:600, whiteSpace:"nowrap" }}>Project demo mode</div>
+              <div style={{ position:"absolute", top:-18, right:-24, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(0,229,195,0.3)", borderRadius:12, padding:"9px 14px", transform:"rotate(2deg)", fontSize:12, color:"rgba(255,255,255,0.8)", fontWeight:600, whiteSpace:"nowrap" }}>Field-ready workflow</div>
               <div style={{ position:"absolute", bottom:28, left:-32, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:12, padding:"9px 14px", transform:"rotate(-2deg)", fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:600, whiteSpace:"nowrap" }}>Trust-first workflow</div>
             </div>
           </div>
@@ -1067,7 +1061,7 @@ function Landing(props) {
             <h2 className="font-display h2-big" style={{ fontSize:44, fontWeight:800, color:T.ink, letterSpacing:"-1.5px", lineHeight:1.1, marginTop:16 }}>
               Trust problem.<br /><span className="grad-teal">Clear hiring flow.</span>
             </h2>
-            <p>Structured for fast understanding in a product demo.</p>
+            <p>Structured for field teams, operations managers, and production workflows.</p>
           </div>
           <div className="grid-3" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
             {[
@@ -2433,7 +2427,7 @@ function Enterprise(props) {
               <h1 className="font-display h1-big grad-violet" style={{ fontSize:52, fontWeight:800, color:"#fff", letterSpacing:"-1.8px", lineHeight:1.08, margin:"20px 0 18px" }}>Compliance-ready workforce infrastructure<br /><span>at enterprise scale.</span></h1>
               <p style={{ fontSize:16, color:"rgba(255,255,255,0.55)", lineHeight:1.8, marginBottom:36, maxWidth:460 }}>For hospitality, facilities, construction, and healthcare operators that require verified deployment, centralised documentation, and measurable turnaround times.</p>
               <div style={row("center","flex-start",14)}>
-                <BtnViolet onClick={function(){ setPage("auth"); }} style={{ padding:"14px 28px" }}>Schedule Demo</BtnViolet>
+                <BtnViolet onClick={function(){ setPage("auth"); }} style={{ padding:"14px 28px" }}>Book Consultation</BtnViolet>
                 <BtnGhost dark={true} onClick={function(){ setPage("pricing"); }} style={{ padding:"14px 24px" }}>Download Brochure</BtnGhost>
               </div>
             </div>
@@ -2464,7 +2458,7 @@ function Enterprise(props) {
             })}
           </div>
           <div style={{ textAlign:"center", marginTop:48 }}>
-            <BtnViolet onClick={function(){ setPage("auth"); }} style={{ padding:"15px 36px", fontSize:16 }}>Get Enterprise Demo</BtnViolet>
+            <BtnViolet onClick={function(){ setPage("auth"); }} style={{ padding:"15px 36px", fontSize:16 }}>Start Enterprise Onboarding</BtnViolet>
           </div>
         </div>
       </section>
@@ -2605,42 +2599,6 @@ function Auth(props) {
     }, 1400);
   }
 
-  function startSample(roleId) {
-    var sampleMap = {
-      worker: { name:"Rekha Devi", type:"worker" },
-      employer: { name:"Sharma Family", type:"employer" },
-      society: { name:"Prestige Society", type:"society" },
-    };
-    var target = sampleMap[roleId] || sampleMap.employer;
-    if (roleId === "worker" && setWorkerProfile) {
-      setWorkerProfile({
-        name: target.name,
-        role: "Domestic Helper",
-        city: "Hyderabad",
-        area: "Banjara Hills",
-        salary: "14,000/mo",
-        exp: 7,
-        bio: "Sample test profile for UAT and panel walkthroughs.",
-        skills: ["Cooking", "Cleaning", "Child Care"],
-        avi: initialsFromName(target.name),
-        color: T.amber,
-        jobs: [
-          {
-            emp: "Sharma Residence",
-            role: "Cook & Home Support",
-            dur: "2024-Present",
-            rating: 5,
-            review: "Reliable, punctual, and very good with daily routines.",
-          },
-        ],
-      });
-    }
-    setUser(target);
-    if (roleId === "worker") setPage("worker-dashboard");
-    else if (roleId === "society") setPage("society-dashboard");
-    else setPage("employer-dashboard");
-  }
-
   function updateOtp(i, val) {
     var next = otp.slice();
     next[i] = val;
@@ -2690,15 +2648,6 @@ function Auth(props) {
                 })}
               </div>
               <BtnTeal onClick={function(){ if(role) { setStep(2); notify("Role selected: "+role+".", "info", "Step complete"); } }} disabled={!role} full={true} style={{ padding:"13px", fontSize:14.5 }}>Continue</BtnTeal>
-              {IS_TEST_MODE && (
-                <div style={{ display:"grid", gridTemplateColumns:"1fr", gap:8, marginTop:12 }}>
-                  <BtnGhost dark={true} onClick={function(){ startSample("worker"); }} full={true} style={{ padding:"10px 14px", fontSize:12.5 }}>{trS("Use sample worker profile")}</BtnGhost>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-                    <BtnGhost dark={true} onClick={function(){ startSample("employer"); }} full={true} style={{ padding:"10px 14px", fontSize:12.5 }}>{trS("Use sample employer profile")}</BtnGhost>
-                    <BtnGhost dark={true} onClick={function(){ startSample("society"); }} full={true} style={{ padding:"10px 14px", fontSize:12.5 }}>{trS("Use sample society profile")}</BtnGhost>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
@@ -2781,7 +2730,6 @@ function Auth(props) {
               <BtnTeal onClick={finish} disabled={otp.join("").length<4 || !name.trim() || loading} full={true} style={{ padding:"13px" }}>
                 {loading?"Verifying...":"Enter Dashboard"}
               </BtnTeal>
-              {IS_TEST_MODE && <p style={{ fontSize:11.5, color:"rgba(255,255,255,0.3)", textAlign:"center", marginTop:14 }}>{trS("Test mode - use any 4-digit OTP")}</p>}
             </div>
           )}
         </div>
