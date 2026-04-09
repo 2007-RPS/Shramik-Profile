@@ -10,33 +10,391 @@ import { useState, useEffect, useCallback } from "react";
 
 // --- TOKENS --------------------------------------------------
 const T = {
-  void:"#05080D", base:"#0D1B28", l1:"#1A3A4F", l2:"#254A65",
-  glass:"rgba(255,255,255,0.08)", glassB:"rgba(255,255,255,0.12)",
-  white:"#FFFFFF", offwhite:"#F0F7F8", subtle:"#E6F5F7",
-  border:"#D4E8EB", borderM:"#BADADF",
-  snow70:"rgba(255,255,255,0.75)",
-  ink:"#0D1B28", body:"#2D5566", muted:"#5A7A99", dim:"#8899BB",
-  teal:"#00D9B8", tealM:"#00B89F", tealD:"#008A7F",
-  tealGlow:"rgba(0,217,184,0.22)",
-  violet:"#9C66FF", violetL:"#B399FF", violetGlow:"rgba(156,102,255,0.18)",
-  amber:"#FF9D3D", amberL:"#FFB366", amberBg:"rgba(255,157,61,0.1)",
-  green:"#1FCB88", greenBg:"#E8FAF3",
-  red:"#FF4B4B", gold:"#FFB800",
-  s1:"0 2px 8px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.1)",
-  s2:"0 6px 24px rgba(0,0,0,0.14)",
-  s3:"0 16px 56px rgba(0,0,0,0.2)",
+  void:"#020408", base:"#060D18", l1:"#0C1829", l2:"#112035",
+  glass:"rgba(255,255,255,0.06)", glassB:"rgba(255,255,255,0.10)",
+  white:"#FFFFFF", offwhite:"#F7F9FC", subtle:"#F0F4F9",
+  border:"#E2E8F0", borderM:"#CBD5E1",
+  ink:"#0A1628", body:"#334155", muted:"#64748B", dim:"#94A3B8",
+  teal:"#00E5C3", tealM:"#00C9A7", tealD:"#009E82",
+  tealGlow:"rgba(0,229,195,0.15)",
+  violet:"#8B5CF6", violetL:"#A78BFA", violetGlow:"rgba(139,92,246,0.15)",
+  amber:"#F59E0B", amberL:"#FCD34D",
+  green:"#10B981", greenBg:"#ECFDF5",
+  red:"#EF4444", gold:"#FBBF24",
+  s1:"0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.08)",
+  s2:"0 4px 20px rgba(0,0,0,0.12)",
+  s3:"0 12px 48px rgba(0,0,0,0.18)",
   r:"10px", rM:"16px", rL:"22px", rX:"32px",
 };
 
 // --- GLOBAL STYLES -------------------------------------------
 function GlobalStyles() {
   return (
-    <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
+    <style>{`      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
       *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
       html{scroll-behavior:smooth}
       body,#root{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:${T.offwhite};color:${T.body};overflow-x:hidden;-webkit-font-smoothing:antialiased}
-      body{font-size:15px;line-height:1.6;letter-spacing:0}
+      .font-display{font-family:'Syne',system-ui,sans-serif;letter-spacing:-0.04em}
+      .grad-teal{background:linear-gradient(120deg,${T.teal},${T.violetL});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+      .grad-amber{background:linear-gradient(120deg,${T.amber},#F97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+      .grad-violet{background:linear-gradient(120deg,${T.violetL},${T.teal});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+      @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+      @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+      @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+      @keyframes slideLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+      @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.95)}}
+      @keyframes menuSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+      .anim-fadeup{animation:fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) both}
+      .anim-fadeup-1{animation:fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.1s both}
+      .anim-fadeup-2{animation:fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.2s both}
+      .anim-fadein{animation:fadeIn 0.4s ease both}
+      .anim-float{animation:floatY 4s ease-in-out infinite}
+      .anim-menuslide{animation:menuSlide 0.25s cubic-bezier(0.22,1,0.36,1) both}
+      .lift{transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.22s ease,border-color 0.2s}
+      .lift:hover{transform:translateY(-4px)}
+      .card-glow:hover{box-shadow:0 0 0 1.5px ${T.teal}44,0 12px 40px rgba(0,229,195,0.14)}
+      .btn-teal:hover{filter:brightness(1.08);transform:translateY(-2px)}
+      .btn-ghost:hover{border-color:${T.teal}!important;color:${T.teal}!important}
+      ::-webkit-scrollbar{width:5px}
+      ::-webkit-scrollbar-track{background:${T.offwhite}}
+      ::-webkit-scrollbar-thumb{background:${T.borderM};border-radius:3px}
+      .marquee{display:flex;width:max-content;animation:slideLeft 32s linear infinite}
+      .marquee:hover{animation-play-state:paused}
+      .mesh-bg{background:radial-gradient(ellipse 80% 60% at 20% 40%,rgba(0,229,195,0.13) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 20%,rgba(139,92,246,0.11) 0%,transparent 60%),${T.base}}
+      .dot-bg{background-image:radial-gradient(circle,rgba(255,255,255,0.035) 1px,transparent 1px);background-size:28px 28px}
+      .tab-on{background:${T.teal}!important;color:${T.base}!important;font-weight:700!important}
+      input,textarea,select{font-family:'Plus Jakarta Sans',system-ui;color:${T.ink}}
+      input::placeholder,textarea::placeholder{color:${T.dim}}
+      select option{background:#fff;color:${T.ink}}
+      .hamburger{display:none}
+      @media(max-width:900px){
+        .nav-links{display:none!important}
+        .hamburger{display:flex!important}
+        .grid-hero{grid-template-columns:1fr!important}
+        .grid-3{grid-template-columns:1fr 1fr!important}
+        .grid-4{grid-template-columns:1fr 1fr!important}
+        .grid-plan{grid-template-columns:1fr!important}
+        .grid-profile{grid-template-columns:1fr!important}
+        .footer-grid{grid-template-columns:1fr 1fr!important}
+      }
+      @media(max-width:600px){
+        .grid-3{grid-template-columns:1fr!important}
+        .grid-4{grid-template-columns:1fr 1fr!important}
+        .grid-2{grid-template-columns:1fr!important}
+        .bento-grid{grid-template-columns:1fr!important}
+        .h1-big{font-size:36px!important;letter-spacing:-1px!important}
+        .h2-big{font-size:28px!important}
+        .sec-pad{padding:60px 16px!important}
+        .otp-input{width:40px!important;height:50px!important;font-size:18px!important}
+        .sidebar-sticky{position:static!important}
+        .dash-4{grid-template-columns:1fr 1fr!important}
+        .footer-grid{grid-template-columns:1fr!important}
+      }
+    `}</style>
+  );
+}
+
+// --- HELPERS -------------------------------------------------
+function row(align, justify, gap) {
+  return { display:"flex", alignItems:align||"center", justifyContent:justify||"flex-start", gap:gap||0, flexWrap:"wrap" };
+}
+function col(gap) { return { display:"flex", flexDirection:"column", gap:gap||0 }; }
+function card(p, extra) { return Object.assign({ background:T.white, border:"1px solid #E8EDF4", borderRadius:T.rM, padding:p||24, boxShadow:T.s1 }, extra||{}); }
+var inp = { width:"100%", background:"#F8FAFC", border:"1.5px solid #E2E8F0", borderRadius:T.r, padding:"11px 14px", fontSize:14, outline:"none", transition:"border-color 0.15s" };
+
+// --- ATOMS ---------------------------------------------------
+function Chip(props) {
+  var label=props.label, color=props.color||T.teal, size=props.size||11, dot=props.dot;
+  return (
+    <span style={{ display:"inline-flex", alignItems:"center", gap:5, background:color+"18", color:color, border:"1px solid "+color+"28", borderRadius:T.rX, padding:"4px "+(size+2)+"px", fontSize:size, fontWeight:700, whiteSpace:"nowrap" }}>
+      {dot && <span style={{ width:6, height:6, borderRadius:"50%", background:color, flexShrink:0 }} />}
+      {label}
+    </span>
+  );
+}
+
+function Stars(props) {
+  var n=props.n||0, size=props.size||14, interactive=props.interactive, onChange=props.onChange;
+  var hover = useState(0);
+  var hoverVal = hover[0], setHover = hover[1];
+  return (
+    <span style={row("center","flex-start",3)}>
+      {[1,2,3,4,5].map(function(s) {
+        return (
+          <span key={s} style={{ fontSize:size, color:s<=(hoverVal||n)?T.gold:"#E2E8F0", cursor:interactive?"pointer":"default", lineHeight:1, transition:"color 0.1s" }}
+            onMouseEnter={function(){ if(interactive) setHover(s); }}
+            onMouseLeave={function(){ if(interactive) setHover(0); }}
+            onClick={function(){ if(interactive && onChange) onChange(s); }}>
+            &#9733;
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+function Score(props) {
+  var n=props.n, count=props.count;
+  var c = n>=4.7?T.green:n>=4.3?T.tealM:T.amber;
+  return (
+    <span style={Object.assign(row("center","flex-start",5), { background:c+"14", border:"1px solid "+c+"22", borderRadius:T.rX, padding:"4px 11px" })}>
+      <span style={{ fontSize:12, color:T.gold }}>&#9733;</span>
+      <span style={{ fontSize:13, fontWeight:800, color:c }}>{n.toFixed(1)}</span>
+      {count!==undefined && <span style={{ fontSize:11, color:T.muted }}>({count})</span>}
+    </span>
+  );
+}
+
+function Avi(props) {
+  var text=props.text, bg=props.bg, size=props.size||44, r=props.r||12, ring=props.ring;
+  return (
+    <div style={{ width:size, height:size, borderRadius:r, background:bg, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", fontSize:size*0.33, fontWeight:800, color:"#fff", fontFamily:"'Syne',system-ui", boxShadow:ring?"0 0 0 2px "+T.base+",0 0 0 4px "+T.teal:undefined }}>
+      {text}
+    </div>
+  );
+}
+
+function TrustLevel(props) {
+  var score=props.score;
+  var lvl = score>=4.8 ? { label:"Platinum", c:"#94A3B8", icon:"Plat." }
+    : score>=4.5 ? { label:"Gold", c:T.amber, icon:"Gold" }
+    : score>=4.0 ? { label:"Silver", c:"#8B9CB6", icon:"Silver" }
+    : { label:"Rising", c:T.teal, icon:"Rising" };
+  return <Chip label={lvl.label} color={lvl.c} />;
+}
+
+function BtnTeal(props) {
+  var children=props.children, onClick=props.onClick, full=props.full, style=props.style||{};
+  return (
+    <button onClick={onClick} className="btn-teal"
+      style={Object.assign({ display:"inline-flex", alignItems:"center", justifyContent:"center", gap:8, background:"linear-gradient(135deg,"+T.teal+","+T.tealM+")", color:T.base, border:"none", borderRadius:T.r, padding:"12px 24px", fontSize:14, fontWeight:700, fontFamily:"'Plus Jakarta Sans',system-ui", cursor:"pointer", boxShadow:"0 4px 20px "+T.tealGlow, transition:"filter 0.15s,transform 0.15s", width:full?"100%":undefined }, style)}>
+      {children}
+    </button>
+  );
+}
+
+function BtnGhost(props) {
+  var children=props.children, onClick=props.onClick, full=props.full, dark=props.dark, style=props.style||{};
+  return (
+    <button onClick={onClick} className="btn-ghost"
+      style={Object.assign({ display:"inline-flex", alignItems:"center", justifyContent:"center", gap:8, background:"transparent", color:dark?T.snow70||"rgba(255,255,255,0.7)":T.body, border:"1.5px solid "+(dark?"rgba(255,255,255,0.25)":"#CBD5E1"), borderRadius:T.r, padding:"12px 24px", fontSize:14, fontWeight:600, fontFamily:"'Plus Jakarta Sans',system-ui", cursor:"pointer", transition:"all 0.2s", width:full?"100%":undefined }, style)}>
+      {children}
+    </button>
+  );
+}
+
+function BtnViolet(props) {
+  var children=props.children, onClick=props.onClick, full=props.full, style=props.style||{};
+  return (
+    <button onClick={onClick} className="btn-teal"
+      style={Object.assign({ display:"inline-flex", alignItems:"center", justifyContent:"center", background:"linear-gradient(135deg,"+T.violet+",#6D28D9)", color:"#fff", border:"none", borderRadius:T.r, padding:"12px 24px", fontSize:14, fontWeight:700, fontFamily:"'Plus Jakarta Sans',system-ui", cursor:"pointer", boxShadow:"0 4px 20px "+T.violetGlow, transition:"filter 0.15s,transform 0.15s", width:full?"100%":undefined }, style)}>
+      {children}
+    </button>
+  );
+}
+
+function BtnAmber(props) {
+  var children=props.children, onClick=props.onClick, full=props.full, style=props.style||{};
+  return (
+    <button onClick={onClick} className="btn-teal"
+      style={Object.assign({ display:"inline-flex", alignItems:"center", justifyContent:"center", background:"linear-gradient(135deg,"+T.amber+",#F97316)", color:"#fff", border:"none", borderRadius:T.r, padding:"12px 24px", fontSize:14, fontWeight:700, fontFamily:"'Plus Jakarta Sans',system-ui", cursor:"pointer", boxShadow:"0 4px 20px rgba(245,158,11,0.3)", transition:"filter 0.15s,transform 0.15s", width:full?"100%":undefined }, style)}>
+      {children}
+    </button>
+  );
+}
+
+// --- DATA ----------------------------------------------------
+var WORKERS = [
+  { id:1, name:"Rekha Devi", role:"Domestic Helper", city:"Hyderabad", area:"Banjara Hills", verified:true, score:4.8, reviews:34, exp:7, skills:["Cooking","Cleaning","Child Care","Elderly Care"], bio:"7 years with families in Banjara Hills & Jubilee Hills. Specialist in South-Indian cooking.", salary:"14,000/mo", avi:"RD", color:"#0D9488", avail:"Available", lang:["Telugu","Hindi"], since:"2017", completePct:98, badges:["Top Rated","Police Verified","Background Check"], jobs:[{ emp:"Sharma Residence", role:"Cook & Help", dur:"Jan 2021-Mar 2024", rating:5, review:"Rekha is exceptional - punctual, trustworthy and an outstanding cook.", verified:true, date:"Mar 2024" },{ emp:"Mehta Family, Jubilee Hills", role:"Full House Help", dur:"Jun 2019-Dec 2020", rating:5, review:"Reliable and honest. Always went above and beyond.", verified:true, date:"Dec 2020" }] },
+  { id:2, name:"Rajan Kumar", role:"Plumber", city:"Bengaluru", area:"Whitefield", verified:true, score:4.6, reviews:58, exp:12, skills:["Pipe Fitting","Leak Repair","Bathroom Fixtures","Gas Line"], bio:"Licensed plumber, 12 years. 500+ residential jobs. Emergency calls available 24/7.", salary:"1,200/visit", avi:"RK", color:"#2563EB", avail:"Available", lang:["Kannada","Hindi"], since:"2012", completePct:100, badges:["Licensed","Emergency 24/7","Gas Certified"], jobs:[{ emp:"Green Park Apartments", role:"Resident Plumber", dur:"2022-Present", rating:5, review:"Fixed a burst pipe at midnight without a complaint.", verified:true, date:"2024" }] },
+  { id:3, name:"Suresh Nair", role:"Security Guard", city:"Mumbai", area:"Powai", verified:true, score:4.9, reviews:42, exp:9, skills:["Access Control","CCTV","Emergency Response","Night Patrol"], bio:"Ex-Army. 9 years residential security. Zero incident record 4 years running.", salary:"18,000/mo", avi:"SN", color:"#7C3AED", avail:"Available", lang:["Malayalam","Hindi","English"], since:"2015", completePct:99, badges:["Ex-Army","Police Verified","Fire Safety"], jobs:[{ emp:"Lodha Splendora, Thane", role:"Head Guard", dur:"2020-Present", rating:5, review:"Suresh transformed our building security. Zero incidents in 4 years.", verified:true, date:"2024" }] },
+  { id:4, name:"Priya Singh", role:"Cook", city:"Pune", area:"Koregaon Park", verified:true, score:4.4, reviews:19, exp:4, skills:["North Indian","Tiffin Service","Baking","Meal Prep"], bio:"Punjabi and continental cuisine specialist. Daily tiffin for working couples.", salary:"10,000/mo", avi:"PS", color:"#D97706", avail:"Available", lang:["Hindi","Marathi"], since:"2020", completePct:82, badges:["Tiffin Service"], jobs:[{ emp:"Tiwari Family, Aundh", role:"Cook", dur:"2022-Present", rating:4, review:"Consistent quality, very hygienic. Kids love her food.", verified:true, date:"2024" }] },
+  { id:5, name:"Mohan Das", role:"Electrician", city:"Delhi", area:"Lajpat Nagar", verified:true, score:4.7, reviews:67, exp:15, skills:["Wiring","MCB","Inverter Setup","CCTV","AC Fitting"], bio:"15 years licensed electrician. CPWD-empanelled. Residential and commercial projects.", salary:"900/hr", avi:"MD", color:"#059669", avail:"On Job", lang:["Hindi","English"], since:"2009", completePct:96, badges:["CPWD","Licensed","Verified"], jobs:[{ emp:"DLF Sector 22 Society", role:"Society Electrician", dur:"2019-Present", rating:5, review:"Mohan is our go-to electrician. Professional and reliable.", verified:true, date:"2024" }] },
+  { id:6, name:"Fatima Begum", role:"Elderly Care", city:"Hyderabad", area:"Jubilee Hills", verified:true, score:4.9, reviews:28, exp:6, skills:["Patient Care","Medicine Mgmt","Night Care","Physiotherapy Assist"], bio:"Trained elderly carer, 6 years. Mobility, medication, companionship.", salary:"20,000/mo", avi:"FB", color:"#DC2626", avail:"Available", lang:["Telugu","Urdu","Hindi"], since:"2018", completePct:100, badges:["Trained Carer","Night Care","Police Verified"], jobs:[{ emp:"Reddy Family, Jubilee Hills", role:"Live-in Carer", dur:"2021-Present", rating:5, review:"Fatima is an angel. Our mother is in the best hands.", verified:true, date:"2024" }] },
+];
+
+var CATS = [
+  { icon:"[M]", label:"Domestic Help", n:"4,200+", color:T.tealM },
+  { icon:"[W]", label:"Plumbers", n:"1,800+", color:T.violet },
+  { icon:"[S]", label:"Security", n:"2,100+", color:"#7C3AED" },
+  { icon:"[C]", label:"Cooks", n:"3,400+", color:T.amber },
+  { icon:"[E]", label:"Electricians", n:"2,300+", color:T.green },
+  { icon:"[O]", label:"Elderly Care", n:"1,400+", color:"#EC4899" },
+  { icon:"[D]", label:"Drivers", n:"3,800+", color:"#0EA5E9" },
+  { icon:"[B]", label:"Carpenters", n:"900+", color:"#92400E" },
+];
+
+// --- NAV -----------------------------------------------------
+function Nav(props) {
+  var page=props.page, setPage=props.setPage, user=props.user, setUser=props.setUser;
+  var menuState = useState(false);
+  var menuOpen = menuState[0], setMenuOpen = menuState[1];
+  var onDark = page==="landing" || page==="auth" || page==="enterprise";
+  var navBg = onDark ? "rgba(6,13,24,0.92)" : "rgba(255,255,255,0.92)";
+  var borderC = onDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)";
+  var links = [
+    { id:"search", l:"Find Workers" },
+    { id:"pricing", l:"Pricing" },
+    { id:"for-societies", l:"For Societies" },
+    { id:"for-workers", l:"For Workers" },
+    { id:"enterprise", l:"Enterprise" },
+  ];
+
+  function getDash() {
+    if (!user) return "auth";
+    if (user.type==="worker") return "worker-dashboard";
+    if (user.type==="society") return "society-dashboard";
+    if (user.type==="admin") return "admin";
+    return "employer-dashboard";
+  }
+
+  function AuthButtons() {
+    if (user) {
+      return (
+        <div style={row("center","flex-end",10)}>
+          <div onClick={function(){ setPage(getDash()); }} style={Object.assign(row("center","flex-start",8), { cursor:"pointer", background:onDark?T.glass:T.subtle, borderRadius:T.r, padding:"6px 12px", border:"1px solid "+(onDark?T.glassB:"#E2E8F0") })}>
+            <Avi text={user.name[0]} bg={T.tealM} size={26} r={7} />
+            <span style={{ fontSize:13, fontWeight:600, color:onDark?"#fff":T.ink }}>{user.name.split(" ")[0]}</span>
+          </div>
+          <button onClick={function(){ setUser(null); setPage("landing"); }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:onDark?"rgba(255,255,255,0.45)":T.muted, fontFamily:"'Plus Jakarta Sans',system-ui" }}>Sign out</button>
+        </div>
+      );
+    }
+    return (
+      <div style={row("center","flex-end",10)}>
+        <button onClick={function(){ setPage("auth"); }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:13.5, fontWeight:600, color:onDark?"rgba(255,255,255,0.7)":T.body, fontFamily:"'Plus Jakarta Sans',system-ui" }}>Sign in</button>
+        <BtnTeal onClick={function(){ setPage("auth"); }} style={{ padding:"8px 18px", fontSize:13 }}>Get started</BtnTeal>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <nav style={{ position:"sticky", top:0, zIndex:200, background:navBg, backdropFilter:"blur(24px)", borderBottom:"1px solid "+borderC }}>
+        <div style={Object.assign(row("center","space-between"), { maxWidth:1200, margin:"0 auto", height:60, padding:"0 24px" })}>
+          <div onClick={function(){ setPage("landing"); setMenuOpen(false); }} style={Object.assign(row("center","flex-start",10), { cursor:"pointer", flexShrink:0 })}>
+            <div style={{ width:32, height:32, borderRadius:9, background:"linear-gradient(135deg,"+T.teal+","+T.tealM+")", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, fontFamily:"'Syne',system-ui", fontWeight:800, color:T.base, flexShrink:0 }}>S</div>
+            <span className="font-display" style={{ fontSize:18, fontWeight:800, color:onDark?"#fff":T.ink, letterSpacing:"-0.5px", whiteSpace:"nowrap" }}>Shramik<span style={{ color:T.teal }}>.</span></span>
+          </div>
+
+          <div className="nav-links" style={row("center","flex-start",2)}>
+            {links.map(function(l) {
+              return (
+                <button key={l.id} onClick={function(){ setPage(l.id); }}
+                  style={{ background:"none", border:"none", cursor:"pointer", padding:"7px 12px", fontSize:13.5, fontWeight:page===l.id?700:500, color:page===l.id?T.teal:onDark?"rgba(255,255,255,0.7)":T.muted, fontFamily:"'Plus Jakarta Sans',system-ui", borderRadius:8, transition:"color 0.15s" }}>
+                  {l.l}
+                </button>
+              );
+            })}
+          </div>
+
+          <div style={row("center","flex-end",10)}>
+            <div className="nav-links">
+              <AuthButtons />
+            </div>
+            <button className="hamburger" onClick={function(){ setMenuOpen(function(o){ return !o; }); }}
+              style={{ background:"none", border:"1px solid "+(onDark?T.glassB:"#E2E8F0"), borderRadius:8, width:38, height:38, cursor:"pointer", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:5, padding:8, flexShrink:0 }}>
+              {[0,1,2].map(function(i) {
+                return <span key={i} style={{ display:"block", width:18, height:2, background:onDark?"#fff":T.ink, borderRadius:2 }} />;
+              })}
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {menuOpen && (
+        <div className="anim-menuslide" style={{ position:"fixed", top:60, left:0, right:0, zIndex:199, background:onDark?"rgba(6,13,24,0.97)":"rgba(255,255,255,0.97)", backdropFilter:"blur(24px)", borderBottom:"1px solid "+borderC, padding:"16px 24px 24px" }}>
+          {links.map(function(l) {
+            return (
+              <button key={l.id} onClick={function(){ setPage(l.id); setMenuOpen(false); }}
+                style={{ display:"block", width:"100%", textAlign:"left", background:"none", border:"none", cursor:"pointer", padding:"12px 0", fontSize:16, fontWeight:page===l.id?700:500, color:page===l.id?T.teal:onDark?"#fff":T.ink, fontFamily:"'Plus Jakarta Sans',system-ui", borderBottom:"1px solid "+borderC }}>
+                {l.l}
+              </button>
+            );
+          })}
+          <div style={{ marginTop:16 }}><AuthButtons /></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- LANDING -------------------------------------------------
+              <div style={{ fontSize:13, color:"rgba(255,255,255,0.78)", fontWeight:700, marginBottom:18 }}>Built for {words[wi]} operations.</div>
+              <div style={{ marginBottom:20 }}>
+                <span className="easy-chip">Simple screens • Big actions • Hindi-friendly flow</span>
+              </div>
+              <div className="hero-proof-row anim-fadeup-1">
+                {[
+                  "Clear worker profile and review history",
+                  "Quick shortlist for common local jobs",
+                  "Simple UI with Hindi-friendly flow"
+                ].map(function(item) {
+                  return (
+                    <div key={item} className="hero-proof-pill">
+                      <span style={{ width:7, height:7, borderRadius:"50%", background:T.teal, flexShrink:0 }} />
+                      <span>{item}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={Object.assign(row("center","flex-start",14), { marginBottom:44 })}>
+                <BtnTeal onClick={function(){ setPage("search"); }} style={{ padding:"14px 28px", fontSize:15 }}>Find workers now</BtnTeal>
+                <BtnGhost onClick={function(){ setPage("auth"); }} dark={true} style={{ padding:"14px 24px", fontSize:14 }}>Try worker onboarding</BtnGhost>
+              </div>
+              <button onClick={function(){ var ok = speakText("Shramik helps workers and families hire safely. Use simple steps to start quickly."); if(!ok) setRoadmapMsg("Audio read is unavailable in this browser."); }} style={{ border:"none", background:"transparent", color:"rgba(255,255,255,0.78)", fontSize:12.5, textDecoration:"underline", cursor:"pointer", padding:0, marginTop:-28, marginBottom:32, fontFamily:"'Plus Jakarta Sans',system-ui" }}>
+                Need audio guide? Play quick intro
+              </button>
+
+              <div className="hero-stats">
+                {[[counts.w.toLocaleString()+"+","Verified workers"],[counts.s.toLocaleString()+"+","Societies"],[Math.floor(counts.r/1000)+"K+","Verified ratings"]].map(function(item) {
+                  return (
+                    <div key={item[1]}>
+                      <div className="font-display" style={{ fontSize:30, fontWeight:800, color:T.teal, lineHeight:1 }}>{item[0]}</div>
+                      <div style={{ fontSize:13, color:"rgba(255,255,255,0.45)", marginTop:4 }}>{item[1]}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="anim-float anim-fadeup-1" style={{ position:"relative" }}>
+              <div className="hero-card-shell">
+                <div style={Object.assign(row("flex-start","space-between"), { marginBottom:20 })}>
+                  <div style={row("flex-start","flex-start",14)}>
+                    <Avi text="RD" bg={T.tealM} size={54} r={14} ring={true} />
+                    <div>
+                      <div className="font-display" style={{ fontSize:17, fontWeight:800, color:"#fff" }}>Rekha Devi</div>
+                      <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginTop:2 }}>Domestic Helper - 7 yrs</div>
+                      <div style={{ marginTop:6 }}><Chip label="Verified" color={T.teal} /></div>
+                    </div>
+                  </div>
+                  <Score n={4.8} count={34} />
+                </div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:18 }}>
+                  {[['7 yrs','Experience'],['34','Reviews'],['98%','Completion']].map(function(item) {
+                    return (
+                      <div key={item[1]} style={{ background:T.glass, borderRadius:10, padding:"12px 10px", textAlign:"center", border:"1px solid rgba(255,255,255,0.06)" }}>
+                        <div style={{ fontSize:16, fontWeight:800, color:T.teal }}>{item[0]}</div>
+                        <div style={{ fontSize:10, color:"rgba(255,255,255,0.45)", marginTop:2 }}>{item[1]}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{ background:T.glass, borderRadius:12, padding:"12px 14px", marginBottom:18 }}>
+                  <div style={{ fontSize:11, color:T.teal, fontWeight:700, marginBottom:5 }}>Latest Review</div>
+                  <p style={{ fontSize:12.5, color:"rgba(255,255,255,0.65)", fontStyle:"italic", lineHeight:1.65 }}>"Rekha is exceptional - punctual, honest, and an outstanding cook."</p>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.35)", marginTop:5 }}>- Sharma Family, Banjara Hills</div>
+                </div>
+                <BtnTeal onClick={function(){ setPage("search"); }} full={true} style={{ padding:"11px", fontSize:13.5 }}>View Profile and Hire</BtnTeal>
+              </div>
+              <div style={{ position:"absolute", top:-18, right:-24, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(0,229,195,0.3)", borderRadius:12, padding:"9px 14px", transform:"rotate(2deg)", fontSize:12, color:"rgba(255,255,255,0.8)", fontWeight:600, whiteSpace:"nowrap" }}>Project demo mode</div>
+              <div style={{ position:"absolute", bottom:28, left:-32, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:12, padding:"9px 14px", transform:"rotate(-2deg)", fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:600, whiteSpace:"nowrap" }}>Trust-first workflow</div>
+            </div>
+          </div>
+        </div>
+      </section>
       .font-display{font-family:'Syne',system-ui,sans-serif;letter-spacing:-0.02em}
       .h1-big{font-size:clamp(2.5rem,5vw,3.5rem)!important;letter-spacing:-1.4px!important}
       .h2-big{font-size:clamp(1.9rem,3.4vw,2.7rem)!important;letter-spacing:-1px!important}
@@ -975,65 +1333,6 @@ function Landing(props) {
 
         <div style={{ maxWidth:1200, margin:"0 auto", position:"relative" }}>
           <div className="grid-hero" style={{ display:"grid", gridTemplateColumns:"minmax(0,1.08fr) minmax(360px,.92fr)", gap:64, alignItems:"center" }}>
-
-            {/* Left */}
-            <div className="anim-fadeup hero-copy">
-              <div style={Object.assign(row("center","flex-start",8), { marginBottom:28 })}>
-                <div className="hero-kicker">
-                  <div style={{ width:7, height:7, borderRadius:"50%", background:T.teal, animation:"pulse 2s infinite" }} />
-                  <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,0.7)", letterSpacing:0.5 }}>Trusted local hiring platform</span>
-                </div>
-              </div>
-
-              <h1 className="font-display h1-big hero-heading" style={{ fontWeight:800, color:"#fff", marginBottom:16 }}>
-                Shramik: simple and safer local worker hiring.
-              </h1>
-              <p className="hero-subcopy" style={{ marginBottom:22 }}>This student project solves a real problem in informal hiring: low trust, unclear records, and slow matching. We provide one simple flow for workers, families, and societies.</p>
-              <div style={{ fontSize:13, color:"rgba(255,255,255,0.78)", fontWeight:700, marginBottom:18 }}>Built for {words[wi]} operations.</div>
-              <div style={{ marginBottom:20 }}>
-                <span className="easy-chip">Simple screens • Big actions • Hindi-friendly flow</span>
-              </div>
-              <div className="hero-proof-row anim-fadeup-1">
-                {[
-                  "Clear worker profile and review history",
-                  "Quick shortlist for common local jobs",
-                  "Simple UI with Hindi-friendly flow"
-                ].map(function(item) {
-                  return (
-                    <div key={item} className="hero-proof-pill">
-                      <span style={{ width:7, height:7, borderRadius:"50%", background:T.teal, flexShrink:0 }} />
-                      <span>{item}</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div style={Object.assign(row("center","flex-start",14), { marginBottom:44 })}>
-                <BtnTeal onClick={function(){ setPage("search"); }} style={{ padding:"14px 28px", fontSize:15 }}>Explore hiring flow</BtnTeal>
-                <BtnGhost onClick={function(){ setPage("auth"); }} dark={true} style={{ padding:"14px 24px", fontSize:14 }}>Try worker onboarding</BtnGhost>
-              </div>
-              <button onClick={function(){ var ok = speakText("Shramik helps workers and families hire safely. Use simple steps to start quickly."); if(!ok) setRoadmapMsg("Audio read is unavailable in this browser."); }} style={{ border:"none", background:"transparent", color:"rgba(255,255,255,0.78)", fontSize:12.5, textDecoration:"underline", cursor:"pointer", padding:0, marginTop:-28, marginBottom:32, fontFamily:"'Plus Jakarta Sans',system-ui" }}>
-                Need audio guide? Play quick intro
-              </button>
-
-              <div className="hero-stats">
-                {[[counts.w.toLocaleString()+"+","Verified workers"],[counts.s.toLocaleString()+"+","Societies"],[Math.floor(counts.r/1000)+"K+","Verified ratings"]].map(function(item) {
-                  return (
-                    <div key={item[1]}>
-                      <div className="font-display" style={{ fontSize:30, fontWeight:800, color:T.teal, lineHeight:1 }}>{item[0]}</div>
-                      <div style={{ fontSize:13, color:"rgba(255,255,255,0.45)", marginTop:4 }}>{item[1]}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Right card */}
-            <div className="anim-float anim-fadeup-1" style={{ position:"relative" }}>
-              <div className="hero-card-shell">
-                <div style={Object.assign(row("flex-start","space-between"), { marginBottom:20 })}>
-                  <div style={row("flex-start","flex-start",14)}>
-                    <Avi text="RD" bg={T.tealM} size={54} r={14} ring={true} />
                     <div>
                       <div className="font-display" style={{ fontSize:17, fontWeight:800, color:"#fff" }}>Rekha Devi</div>
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginTop:2 }}>Domestic Helper - 7 yrs</div>
@@ -1091,31 +1390,6 @@ function Landing(props) {
                   <div style={{ padding:"12px 14px", fontSize:12.5, color:T.muted, borderLeft:"1px solid #EEF2F7" }}>{rowItem[1]}</div>
                   <div style={{ padding:"12px 14px", fontSize:12.5, color:T.muted, borderLeft:"1px solid #EEF2F7" }}>{rowItem[2]}</div>
                   <div style={{ padding:"12px 14px", fontSize:12.5, color:"#7A5C22", fontWeight:700, borderLeft:"1px solid #EEF2F7", background:"linear-gradient(90deg,rgba(200,169,106,0.08) 0%,rgba(0,229,195,0.04) 100%)" }}>{rowItem[3]}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="sec-pad reveal" data-reveal="true" style={{ padding:"64px 32px", background:T.white, borderBottom:"1px solid #E8EDF4" }}>
-        <div style={{ maxWidth:1200, margin:"0 auto" }}>
-          <div style={{ marginBottom:18 }}>
-            <h2 className="font-display" style={{ fontSize:32, fontWeight:800, color:T.ink, marginTop:10 }}>Product snapshot</h2>
-            <p style={{ marginTop:8, fontSize:14, color:T.muted, maxWidth:860 }}>The core idea is to make local hiring clear, fast, and trustworthy.</p>
-          </div>
-
-          <div className="grid-4" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12 }}>
-            {[
-              ["Problem", "Local informal hiring is trust-deficient and unstructured for both workers and families."],
-              ["Our Approach", "Single platform flow with worker profiles, role-based onboarding, and basic trust indicators."],
-              ["Implemented Scope", "Worker discovery, onboarding, hire request flow, society/admin dashboard simulation."],
-              ["Next Iteration", "Live verification APIs, stronger analytics, and production-grade workflow automation."],
-            ].map(function(item) {
-              return (
-                <div key={item[0]} style={card(16, { borderTop:"3px solid "+T.teal, minHeight:170 })}>
-                  <div className="font-display" style={{ fontSize:18, fontWeight:800, color:T.ink, marginBottom:8 }}>{item[0]}</div>
-                  <p style={{ fontSize:13.5, color:T.body, lineHeight:1.65 }}>{item[1]}</p>
                 </div>
               );
             })}
@@ -2720,13 +2994,14 @@ function Auth(props) {
     { id:"society",  icon:"S", label:"Society / RWA",     sub:"Manage complex workers",  color:T.violet },
     { id:"worker",   icon:"W", label:"Worker",             sub:"Build my profile",        color:T.amber },
     { id:"admin",    icon:"A", label:"Admin",              sub:"Platform admin",          color:"#94A3B8" },
+    { id:"other",    icon:"O", label:"Other / Custom",    sub:"Custom use case",         color:T.red },
   ];
 
   function finish() {
     setLoading(true);
     setTimeout(function() {
-      var names = { worker:name||"Rekha Devi", employer:name||"Sharma Family", society:name||"Prestige Society", admin:"Admin" };
-      var types = { worker:"worker", employer:"employer", society:"society", admin:"admin" };
+      var names = { worker:name||"Rekha Devi", employer:name||"Sharma Family", society:name||"Prestige Society", admin:"Admin", other:name||"Custom User" };
+      var types = { worker:"worker", employer:"employer", society:"society", admin:"admin", other:"other" };
       var selectedRole = role || "employer";
       var u = {
         name:names[selectedRole]||names.employer,
@@ -2754,7 +3029,7 @@ function Auth(props) {
         });
       }
       notify("Signed in successfully as "+(role||"employer")+".", "success", "Welcome" );
-      var pages = { worker:"worker-dashboard", employer:"employer-dashboard", society:"society-dashboard", admin:"admin" };
+      var pages = { worker:"worker-dashboard", employer:"employer-dashboard", society:"society-dashboard", admin:"admin", other:"enterprise" };
       setPage(pages[role]||"employer-dashboard");
     }, 1400);
   }
