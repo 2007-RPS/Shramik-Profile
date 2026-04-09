@@ -104,9 +104,20 @@ function GlobalStyles() {
       .hero-proof-row{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
       .hero-proof-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:11.5px;font-weight:700;color:rgba(255,255,255,.76)}
       .hero-card-shell{background:linear-gradient(180deg,rgba(12,24,41,.88) 0%,rgba(9,18,31,.94) 100%);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15);border-radius:${T.rX};padding:20px}
+      .dashboard-hero{background:linear-gradient(135deg,${T.l1} 0%,${T.l2} 55%,#17304B 100%);border-radius:${T.rX};padding:24px;border:1px solid rgba(255,255,255,0.08);box-shadow:${T.s3};color:#fff}
+      .dashboard-sub{font-size:13px;color:rgba(255,255,255,0.58);margin-top:6px}
+      .dashboard-chipbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+      .dash-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
       .home-feature-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
       .home-feature-card{min-height:140px}
       .role-quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+      .filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;padding:8px 10px;border:1px solid rgba(255,255,255,.45);border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,.42),rgba(255,255,255,.18));backdrop-filter:blur(14px) saturate(120%);-webkit-backdrop-filter:blur(14px) saturate(120%);box-shadow:0 10px 24px rgba(15,23,42,.1),inset 0 1px 0 rgba(255,255,255,.45)}
+      .filter-field{display:flex;flex-direction:column;gap:5px}
+      .filter-label{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#4F6C88}
+      .filter-select{width:120px;height:38px}
+      .filter-select.city{width:120px}
+      .filter-search{width:200px;min-width:160px;height:38px}
+      .filter-actions{display:flex;gap:8px;align-items:flex-end;margin-left:auto}
       .section-intro{max-width:760px;margin:0 auto 40px;text-align:center}
       .page-wrap{max-width:1100px;margin:0 auto;padding:32px}
       .page-wrap-wide{max-width:1200px;margin:0 auto;padding:32px}
@@ -114,14 +125,21 @@ function GlobalStyles() {
         .nav-links{display:none!important}
         .hamburger{display:flex!important}
         .grid-hero{grid-template-columns:1fr!important}
+        .dash-4{grid-template-columns:1fr 1fr!important}
         .grid-3{grid-template-columns:1fr 1fr!important}
         .grid-4{grid-template-columns:1fr 1fr!important}
         .footer-grid{grid-template-columns:1fr 1fr!important}
         .home-feature-grid{grid-template-columns:1fr 1fr!important}
+        .filter-select,.filter-select.city{width:calc(50% - 4px)!important}
+        .filter-search{width:100%!important;min-width:100%!important}
+        .filter-actions{margin-left:0}
       }
       @media(max-width:600px){
-        .grid-2,.grid-3,.grid-4,.bento-grid,.home-feature-grid,.role-quick-grid,.footer-grid{grid-template-columns:1fr!important}
+        .grid-2,.grid-3,.grid-4,.bento-grid,.home-feature-grid,.role-quick-grid,.footer-grid,.dash-4{grid-template-columns:1fr!important}
         .hero-stats{grid-template-columns:1fr!important;gap:12px!important}
+        .filter-select,.filter-select.city,.filter-search{width:100%!important}
+        .filter-field{width:100%}
+        .filter-actions{width:100%;justify-content:flex-start}
         .page-wrap,.page-wrap-wide{padding:20px 14px}
       }
     `}</style>
@@ -2534,14 +2552,13 @@ function Auth(props) {
     { id:"society",  icon:"S", label:"Society / RWA",     sub:"Manage complex workers",  color:T.violet },
     { id:"worker",   icon:"W", label:"Worker",             sub:"Build my profile",        color:T.amber },
     { id:"admin",    icon:"A", label:"Admin",              sub:"Platform admin",          color:"#94A3B8" },
-    { id:"other",    icon:"O", label:"Other / Custom",    sub:"Custom use case",         color:T.red },
   ];
 
   function finish() {
     setLoading(true);
     setTimeout(function() {
-      var names = { worker:name||"Rekha Devi", employer:name||"Sharma Family", society:name||"Prestige Society", admin:"Admin", other:name||"Custom User" };
-      var types = { worker:"worker", employer:"employer", society:"society", admin:"admin", other:"other" };
+      var names = { worker:name||"Rekha Devi", employer:name||"Sharma Family", society:name||"Prestige Society", admin:"Admin" };
+      var types = { worker:"worker", employer:"employer", society:"society", admin:"admin" };
       var selectedRole = role || "employer";
       var u = {
         name:names[selectedRole]||names.employer,
@@ -2569,7 +2586,7 @@ function Auth(props) {
         });
       }
       notify("Signed in successfully as "+(role||"employer")+".", "success", "Welcome" );
-      var pages = { worker:"worker-dashboard", employer:"employer-dashboard", society:"society-dashboard", admin:"admin", other:"enterprise" };
+      var pages = { worker:"worker-dashboard", employer:"employer-dashboard", society:"society-dashboard", admin:"admin" };
       setPage(pages[role]||"employer-dashboard");
     }, 1400);
   }
