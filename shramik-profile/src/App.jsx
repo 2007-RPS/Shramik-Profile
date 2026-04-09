@@ -67,13 +67,13 @@ function card(padding, extra) {
 
 const inp = {
   width:"100%",
-  height:44,
+  height:40,
   border:"1px solid #D5DEE9",
   borderRadius:T.r,
   background:"#fff",
   color:T.ink,
   padding:"0 12px",
-  fontSize:13.5,
+  fontSize:13,
   fontFamily:"'Plus Jakarta Sans',system-ui",
 };
 
@@ -946,31 +946,6 @@ function Landing(props) {
         </div>
       </section>
 
-      <section className="sec-pad reveal" data-reveal="true" style={{ padding:"50px 32px", background:"#F7FAFC", borderTop:"1px solid #E8EDF4", borderBottom:"1px solid #E8EDF4" }}>
-        <div style={{ maxWidth:1200, margin:"0 auto" }}>
-          <div className="grid-2" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
-            <div style={card(20, { borderTop:"3px solid "+T.teal, minHeight:150 })}>
-              <div style={{ fontSize:12, fontWeight:700, color:T.tealM, letterSpacing:0.3, marginBottom:8 }}>START HERE</div>
-              <div className="font-display" style={{ fontSize:22, fontWeight:800, color:T.ink, marginBottom:8 }}>Hiring flow built for speed</div>
-              <p style={{ fontSize:13.5, color:T.muted, lineHeight:1.72, marginBottom:12 }}>Post need, shortlist verified workers, and move to call or trial in one guided sequence.</p>
-              <div style={row("center","flex-start",8)}>
-                <BtnTeal onClick={function(){ setPage("search"); }} style={{ padding:"10px 14px", fontSize:12.5 }}>Start hiring</BtnTeal>
-                <BtnGhost onClick={function(){ setPage("pricing"); }} style={{ padding:"10px 14px", fontSize:12.5 }}>See pricing</BtnGhost>
-              </div>
-            </div>
-            <div style={card(20, { borderTop:"3px solid "+T.violet, minHeight:150 })}>
-              <div style={{ fontSize:12, fontWeight:700, color:T.violet, letterSpacing:0.3, marginBottom:8 }}>TRUST LAYER</div>
-              <div className="font-display" style={{ fontSize:22, fontWeight:800, color:T.ink, marginBottom:8 }}>Verification, review, replacement</div>
-              <p style={{ fontSize:13.5, color:T.muted, lineHeight:1.72, marginBottom:12 }}>Every profile carries checks, ratings, and completion signals so decisions stay clear and professional.</p>
-              <div style={row("center","flex-start",8)}>
-                <button onClick={function(){ setPage("for-societies"); }} style={{ border:"1px solid #D7DFEA", background:"#fff", borderRadius:T.r, padding:"9px 12px", fontSize:12.5, fontWeight:700, color:T.body, cursor:"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" }}>View operations</button>
-                <button onClick={function(){ setPage("for-workers"); }} style={{ border:"1px solid #D7DFEA", background:"#fff", borderRadius:T.r, padding:"9px 12px", fontSize:12.5, fontWeight:700, color:T.body, cursor:"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" }}>Worker side</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="sec-pad reveal" data-reveal="true" style={{ padding:"64px 32px", background:T.offwhite, borderBottom:"1px solid #E8EDF4" }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div style={Object.assign(row("center","space-between"), { marginBottom:20, gap:10 })}>
@@ -1758,15 +1733,15 @@ function Search(props) {
           </div>}
 
           <div className="filter-bar search-sticky">
-            <div className="filter-field"><label className="filter-label">{trS("Search")}</label><input className="filter-search liquid-control" value={query} onChange={function(e){ setQuery(e.target.value); }} placeholder={trS("Name, skill or role")} style={Object.assign({}, inp, liquidControlStyle, { borderRadius:T.r })} /></div>
-            <div className="filter-field"><label className="filter-label">{trS("Role")}</label><select className="filter-select liquid-control" value={fRole} onChange={function(e){ setFRole(e.target.value); }} style={Object.assign({}, inp, liquidControlStyle, { height:44 })}>{roles.map(function(r){ return <option key={r}>{r}</option>; })}</select></div>
-            <div className="filter-field"><label className="filter-label">{trS("City")}</label><select className="filter-select city liquid-control" value={fCity} onChange={function(e){ setFCity(e.target.value); }} style={Object.assign({}, inp, liquidControlStyle, { height:44 })}>{cities.map(function(c){ return <option key={c}>{c}</option>; })}</select></div>
-            <div className="filter-field"><label className="filter-label">{trS("Min Rating")}</label><select className="filter-select liquid-control" value={fRating} onChange={function(e){ setFRating(e.target.value); }} style={Object.assign({}, inp, liquidControlStyle, { height:44 })}>{ratings.map(function(r){ return <option key={r}>{r}</option>; })}</select></div>
-            <div className="filter-field"><label className="filter-label">{trS("Sort By")}</label><select className="filter-select liquid-control" value={sortBy} onChange={function(e){ setSort(e.target.value); }} style={Object.assign({}, inp, liquidControlStyle, { height:44 })}><option value="smart">{trS("Smart Match")}</option><option value="rating">{trS("Highest Rated")}</option><option value="exp">{trS("Most Experienced")}</option>{userLoc && <option value="nearest">{trS("Nearest to Me")}</option>}</select></div>
-            <div className="filter-field"><label className="filter-label">{trS("Radius")}</label><select className="filter-select liquid-control" value={radiusKm} onChange={function(e){ setRadiusKm(e.target.value); }} style={Object.assign({}, inp, liquidControlStyle, { height:44 })}>{["5","10","25","50"].map(function(k){ return <option key={k} value={k}>{k} km</option>; })}</select></div>
+            <div className="filter-field"><label className="filter-label">{trS("Search")}</label><input className="filter-search liquid-control" value={query} onChange={function(e){ setQuery(e.target.value); }} placeholder={trS("Name, skill or role")} style={Object.assign({}, inp, liquidControlStyle, { borderRadius:T.r, height:38, padding:"0 10px" })} /></div>
+            <div className="filter-field"><label className="filter-label">{trS("Role")}</label><select className="filter-select liquid-control" value={fRole} onChange={function(e){ setFRole(e.target.value); }} style={Object.assign({}, inp, liquidControlStyle, { height:38, padding:"0 10px" })}>{roles.map(function(r){ return <option key={r}>{r}</option>; })}</select></div>
+            <div className="filter-field"><label className="filter-label">{trS("City")}</label><select className="filter-select city liquid-control" value={fCity} onChange={function(e){ setFCity(e.target.value); }} style={Object.assign({}, inp, liquidControlStyle, { height:38, padding:"0 10px" })}>{cities.map(function(c){ return <option key={c}>{c}</option>; })}</select></div>
+            <div className="filter-field"><label className="filter-label">{trS("Min Rating")}</label><select className="filter-select liquid-control" value={fRating} onChange={function(e){ setFRating(e.target.value); }} style={Object.assign({}, inp, liquidControlStyle, { height:38, padding:"0 10px" })}>{ratings.map(function(r){ return <option key={r}>{r}</option>; })}</select></div>
+            <div className="filter-field"><label className="filter-label">{trS("Sort By")}</label><select className="filter-select liquid-control" value={sortBy} onChange={function(e){ setSort(e.target.value); }} style={Object.assign({}, inp, liquidControlStyle, { height:38, padding:"0 10px" })}><option value="smart">{trS("Smart Match")}</option><option value="rating">{trS("Highest Rated")}</option><option value="exp">{trS("Most Experienced")}</option>{userLoc && <option value="nearest">{trS("Nearest to Me")}</option>}</select></div>
+            <div className="filter-field"><label className="filter-label">{trS("Radius")}</label><select className="filter-select liquid-control" value={radiusKm} onChange={function(e){ setRadiusKm(e.target.value); }} style={Object.assign({}, inp, liquidControlStyle, { height:38, padding:"0 10px" })}>{["5","10","25","50"].map(function(k){ return <option key={k} value={k}>{k} km</option>; })}</select></div>
             <div className="filter-actions">
-              <button onClick={function(){ setVerifiedOnly(function(v){ return !v; }); }} className="liquid-control" style={Object.assign({}, liquidControlStyle, { border:"1px solid "+(verifiedOnly?"#A7F3D0":"#D5DEE9"), background:verifiedOnly?T.greenBg:"rgba(255,255,255,.45)", color:verifiedOnly?T.green:T.muted, borderRadius:T.r, padding:"10px 12px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" })}>{trS("Verified only")}</button>
-              <button onClick={clearFilters} className="liquid-control" style={Object.assign({}, liquidControlStyle, { border:"1px solid #D5DEE9", background:"rgba(255,255,255,.45)", color:T.body, borderRadius:T.r, padding:"10px 14px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" })}>Clear</button>
+              <button onClick={function(){ setVerifiedOnly(function(v){ return !v; }); }} className="liquid-control" style={Object.assign({}, liquidControlStyle, { border:"1px solid "+(verifiedOnly?"#A7F3D0":"#D5DEE9"), background:verifiedOnly?T.greenBg:"rgba(255,255,255,.45)", color:verifiedOnly?T.green:T.muted, borderRadius:T.r, padding:"8px 10px", fontSize:11.5, fontWeight:700, cursor:"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" })}>{trS("Verified only")}</button>
+              <button onClick={clearFilters} className="liquid-control" style={Object.assign({}, liquidControlStyle, { border:"1px solid #D5DEE9", background:"rgba(255,255,255,.45)", color:T.body, borderRadius:T.r, padding:"8px 12px", fontSize:11.5, fontWeight:700, cursor:"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" })}>Clear</button>
               {["grid","list"].map(function(v) {
                 var active=view===v;
                 return <button key={v} className="liquid-control view-toggle" aria-label={v==="grid"?"Grid view":"List view"} aria-pressed={active} onClick={function(){ switchView(v); }} style={Object.assign({}, liquidControlStyle, { border:"1.5px solid "+(active?T.teal:"#D8E6F3"), background:active?"rgba(0,229,195,0.14)":"rgba(255,255,255,.42)", color:active?T.tealM:T.dim, cursor:"pointer" })}>
