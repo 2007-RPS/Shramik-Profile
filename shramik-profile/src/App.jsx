@@ -320,6 +320,7 @@ function Nav(props) {
 }
 
 // --- LANDING -------------------------------------------------
+/*
               <div style={{ fontSize:13, color:"rgba(255,255,255,0.78)", fontWeight:700, marginBottom:18 }}>Built for {words[wi]} operations.</div>
               <div style={{ marginBottom:20 }}>
                 <span className="easy-chip">Simple screens • Big actions • Hindi-friendly flow</span>
@@ -542,7 +543,7 @@ function Nav(props) {
         .hero-subcopy{text-align:left;font-size:15px}
         .hero-proof-row{margin-bottom:24px}
         .home-feature-grid{grid-template-columns:1fr!important}
-        .role-quick-grid{grid-template-columns:1fr 1fr!important}
+        .role-quick-grid{grid-template-columns:1fr!important}
         .home-feature-card{min-height:auto}
         .section-intro{margin-bottom:40px}
         .page-wrap,.page-wrap-wide{padding:20px 14px}
@@ -559,6 +560,7 @@ function Nav(props) {
     `}</style>
   );
 }
+*/
 
 // --- HELPERS -------------------------------------------------
 function row(align, justify, gap) {
@@ -1333,6 +1335,62 @@ function Landing(props) {
 
         <div style={{ maxWidth:1200, margin:"0 auto", position:"relative" }}>
           <div className="grid-hero" style={{ display:"grid", gridTemplateColumns:"minmax(0,1.08fr) minmax(360px,.92fr)", gap:64, alignItems:"center" }}>
+            <div className="anim-fadeup hero-copy">
+              <div style={Object.assign(row("center","flex-start",8), { marginBottom:28 })}>
+                <div className="hero-kicker">
+                  <div style={{ width:7, height:7, borderRadius:"50%", background:T.teal, animation:"pulse 2s infinite" }} />
+                  <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,0.7)", letterSpacing:0.5 }}>Trusted local hiring platform</span>
+                </div>
+              </div>
+
+              <h1 className="font-display h1-big hero-heading" style={{ fontWeight:800, color:"#fff", marginBottom:16 }}>
+                Shramik: simple and safer local worker hiring.
+              </h1>
+              <p className="hero-subcopy" style={{ marginBottom:22 }}>Shramik solves a real problem in informal hiring: low trust, unclear records, and slow matching. We provide one simple flow for workers, families, and societies.</p>
+              <div style={{ fontSize:13, color:"rgba(255,255,255,0.78)", fontWeight:700, marginBottom:18 }}>Built for {words[wi]} operations.</div>
+              <div style={{ marginBottom:20 }}>
+                <span className="easy-chip">Simple screens - Big actions - Hindi-friendly flow</span>
+              </div>
+              <div className="hero-proof-row anim-fadeup-1">
+                {[
+                  "Clear worker profile and review history",
+                  "Quick shortlist for common local jobs",
+                  "Simple UI with Hindi-friendly flow"
+                ].map(function(item) {
+                  return (
+                    <div key={item} className="hero-proof-pill">
+                      <span style={{ width:7, height:7, borderRadius:"50%", background:T.teal, flexShrink:0 }} />
+                      <span>{item}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={Object.assign(row("center","flex-start",14), { marginBottom:44 })}>
+                <BtnTeal onClick={function(){ setPage("search"); }} style={{ padding:"14px 28px", fontSize:15 }}>Find workers now</BtnTeal>
+                <BtnGhost onClick={function(){ setPage("auth"); }} dark={true} style={{ padding:"14px 24px", fontSize:14 }}>Try worker onboarding</BtnGhost>
+              </div>
+              <button onClick={function(){ var ok = speakText("Shramik helps workers and families hire safely. Use simple steps to start quickly."); if(!ok) setRoadmapMsg("Audio read is unavailable in this browser."); }} style={{ border:"none", background:"transparent", color:"rgba(255,255,255,0.78)", fontSize:12.5, textDecoration:"underline", cursor:"pointer", padding:0, marginTop:-28, marginBottom:32, fontFamily:"'Plus Jakarta Sans',system-ui" }}>
+                Need audio guide? Play quick intro
+              </button>
+
+              <div className="hero-stats">
+                {[[counts.w.toLocaleString()+"+","Verified workers"],[counts.s.toLocaleString()+"+","Societies"],[Math.floor(counts.r/1000)+"K+","Verified ratings"]].map(function(item) {
+                  return (
+                    <div key={item[1]}>
+                      <div className="font-display" style={{ fontSize:30, fontWeight:800, color:T.teal, lineHeight:1 }}>{item[0]}</div>
+                      <div style={{ fontSize:13, color:"rgba(255,255,255,0.45)", marginTop:4 }}>{item[1]}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="anim-float anim-fadeup-1" style={{ position:"relative" }}>
+              <div className="hero-card-shell">
+                <div style={Object.assign(row("flex-start","space-between"), { marginBottom:20 })}>
+                  <div style={row("flex-start","flex-start",14)}>
+                    <Avi text="RD" bg={T.tealM} size={54} r={14} ring={true} />
                     <div>
                       <div className="font-display" style={{ fontSize:17, fontWeight:800, color:"#fff" }}>Rekha Devi</div>
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginTop:2 }}>Domestic Helper - 7 yrs</div>
@@ -1753,7 +1811,7 @@ function Landing(props) {
             })}
           </div>
           <div style={Object.assign(row("center","space-between"), { borderTop:"1px solid rgba(255,255,255,0.06)", paddingTop:24 })}>
-            <span style={{ fontSize:12.5, color:"rgba(255,255,255,0.25)" }}>2025 Shramik Technologies Pvt. Ltd.</span>
+            <span style={{ fontSize:12.5, color:"rgba(255,255,255,0.25)" }}>{new Date().getFullYear()} Shramik Technologies Pvt. Ltd.</span>
             <div style={row("center","flex-end",12)}>
               <Chip label="ISO 27001" color={T.teal} size={10} />
               <Chip label="DPDP Compliant" color={T.violet} size={10} />
