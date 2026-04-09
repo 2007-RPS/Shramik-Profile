@@ -81,6 +81,20 @@ This repository includes `render.yaml` for Blueprint deployment.
 
 Backend can be hosted separately on Render/Railway using `npm run start:api`.
 
+## Field Testing
+
+Before handing the app to testers, use these documents:
+
+- `FIELD_TESTING_PLAN.md` for the full feature-by-feature testing flow
+- `DEPLOYED_UAT_CHECKLIST.md` for the live Render smoke/UAT checklist
+- `QA_CHECKLIST.md` for the release-readiness checklist
+
+Testing notes:
+
+- The frontend will use the live backend only when `VITE_API_BASE_URL` points to the deployed API URL.
+- If the backend is unavailable, the search page falls back to local data and shows that state in the UI.
+- The backend should return `status: ok` at `/api/health` before field testing starts.
+
 ### Option 3: Netlify (frontend only)
 
 1. Push this folder to GitHub.
