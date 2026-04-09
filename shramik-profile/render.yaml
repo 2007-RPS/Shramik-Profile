@@ -2,7 +2,7 @@ services:
   - type: web
     name: shramik-api
     env: node
-    rootDir: .
+    rootDir: shramik-profile
     buildCommand: npm install
     startCommand: npm run start:api
     plan: free
@@ -15,7 +15,7 @@ services:
   - type: web
     name: shramik-web
     env: static
-    rootDir: .
+    rootDir: shramik-profile
     buildCommand: npm run build
     staticPublishPath: dist
     plan: free
