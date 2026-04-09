@@ -919,9 +919,19 @@ function Landing(props) {
   var planHomesState = useState("1");
   var planWorkersState = useState("2");
   var planModelState = useState("standard");
+  var innovationState = useState("concierge");
   var planHomes = planHomesState[0], setPlanHomes = planHomesState[1];
   var planWorkers = planWorkersState[0], setPlanWorkers = planWorkersState[1];
   var planModel = planModelState[0], setPlanModel = planModelState[1];
+  var innovation = innovationState[0], setInnovation = innovationState[1];
+
+  var comparisonRows = [
+    ["Verification depth", "Phone-only checks", "Profile claims", "Aadhaar + police + trust history"],
+    ["Speed to shortlist", "1-3 days", "High choice, low confidence", "Shortlist in minutes with trust cues"],
+    ["Replacement handling", "Manual follow-up", "Depends on individual", "1-tap replacement workflow"],
+    ["Pricing clarity", "Often negotiated", "Hidden contact friction", "Transparent platform fee logic"],
+    ["Operational visibility", "No unified view", "No compliance layer", "Society + admin dashboards with logs"],
+  ];
 
   var homeCount = Number(planHomes || 0);
   var workerCount = Number(planWorkers || 0);
@@ -953,8 +963,26 @@ function Landing(props) {
     setRoadmapMsg("Sandbox API key generated for integration pilot.");
   }
 
+  function selectInnovation(id) {
+    setInnovation(id);
+    if (id === "concierge") {
+      setRoadmapMsg("AI Concierge preview: role + budget + area based shortlist in one tap.");
+      return;
+    }
+    if (id === "wallet") {
+      setRoadmapMsg("Trust Wallet preview: digital trust history and work consistency score.");
+      return;
+    }
+    setRoadmapMsg("Voice Booking preview: low-literacy booking in Hindi/English guided steps.");
+  }
+
   return (
     <div>
+      {IS_TEST_MODE && (
+        <div style={{ position:"fixed", top:72, right:14, zIndex:230, background:"rgba(6,13,24,0.92)", border:"1px solid rgba(0,229,195,0.25)", borderRadius:999, padding:"7px 12px", fontSize:11.5, fontWeight:700, color:T.teal, backdropFilter:"blur(10px)", WebkitBackdropFilter:"blur(10px)" }}>
+          TEST MODE ACTIVE
+        </div>
+      )}
       {/* HERO */}
       <section className="mesh-bg dot-bg" style={{ padding:"88px 32px 100px", overflow:"hidden", position:"relative" }}>
         <div style={{ position:"absolute", top:"15%", left:"8%", width:500, height:500, borderRadius:"50%", background:"radial-gradient(circle,rgba(0,229,195,0.12) 0%,transparent 70%)", pointerEvents:"none", filter:"blur(40px)" }} />
@@ -968,23 +996,23 @@ function Landing(props) {
               <div style={Object.assign(row("center","flex-start",8), { marginBottom:28 })}>
                 <div className="hero-kicker">
                   <div style={{ width:7, height:7, borderRadius:"50%", background:T.teal, animation:"pulse 2s infinite" }} />
-                  <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,0.7)", letterSpacing:0.5 }}>India's trusted worker identity network</span>
+                  <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,0.7)", letterSpacing:0.5 }}>2nd Year BTech Project - SIP 2026</span>
                 </div>
               </div>
 
               <h1 className="font-display h1-big hero-heading" style={{ fontWeight:800, color:"#fff", marginBottom:16 }}>
-                Hire trusted workers, faster.
+                Shramik: simple and safer local worker hiring.
               </h1>
-              <p className="hero-subcopy" style={{ marginBottom:22 }}>Verified identity, clear pricing, replacement support, and simple flows for families, workers, societies, and enterprises.</p>
+              <p className="hero-subcopy" style={{ marginBottom:22 }}>This student project solves a real problem in informal hiring: low trust, unclear records, and slow matching. We provide one simple flow for workers, families, and societies.</p>
               <div style={{ fontSize:13, color:"rgba(255,255,255,0.78)", fontWeight:700, marginBottom:18 }}>Built for {words[wi]} operations.</div>
               <div style={{ marginBottom:20 }}>
                 <span className="easy-chip">Simple screens • Big actions • Hindi-friendly flow</span>
               </div>
               <div className="hero-proof-row anim-fadeup-1">
                 {[
-                  "Pay only after joining",
-                  "Replacement request in one tap",
-                  "Police/background-verified profiles"
+                  "Clear worker profile and review history",
+                  "Quick shortlist for common local jobs",
+                  "Simple UI with Hindi-friendly flow"
                 ].map(function(item) {
                   return (
                     <div key={item} className="hero-proof-pill">
@@ -996,10 +1024,12 @@ function Landing(props) {
               </div>
 
               <div style={Object.assign(row("center","flex-start",14), { marginBottom:44 })}>
-                <BtnTeal onClick={function(){ setPage("search"); }} style={{ padding:"14px 28px", fontSize:15 }}>Find verified workers</BtnTeal>
-                <BtnGhost onClick={function(){ setPage("for-workers"); }} dark={true} style={{ padding:"14px 24px", fontSize:14 }}>I am a worker</BtnGhost>
-                <BtnGhost onClick={function(){ var ok = speakText("Shramik helps workers and families hire safely. Use big easy buttons below to start."); if(!ok) setRoadmapMsg("Audio read is unavailable in this browser."); }} dark={true} style={{ padding:"14px 18px", fontSize:14 }}>Read Aloud</BtnGhost>
+                <BtnTeal onClick={function(){ setPage("search"); }} style={{ padding:"14px 28px", fontSize:15 }}>Explore hiring flow</BtnTeal>
+                <BtnGhost onClick={function(){ setPage("auth"); }} dark={true} style={{ padding:"14px 24px", fontSize:14 }}>Try worker onboarding</BtnGhost>
               </div>
+              <button onClick={function(){ var ok = speakText("Shramik helps workers and families hire safely. Use simple steps to start quickly."); if(!ok) setRoadmapMsg("Audio read is unavailable in this browser."); }} style={{ border:"none", background:"transparent", color:"rgba(255,255,255,0.78)", fontSize:12.5, textDecoration:"underline", cursor:"pointer", padding:0, marginTop:-28, marginBottom:32, fontFamily:"'Plus Jakarta Sans',system-ui" }}>
+                Need audio guide? Play quick intro
+              </button>
 
               <div className="hero-stats">
                 {[[counts.w.toLocaleString()+"+","Verified workers"],[counts.s.toLocaleString()+"+","Societies"],[Math.floor(counts.r/1000)+"K+","Verified ratings"]].map(function(item) {
@@ -1044,9 +1074,103 @@ function Landing(props) {
                 </div>
                 <BtnTeal onClick={function(){ setPage("search"); }} full={true} style={{ padding:"11px", fontSize:13.5 }}>View Profile and Hire</BtnTeal>
               </div>
-              <div style={{ position:"absolute", top:-18, right:-24, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(0,229,195,0.3)", borderRadius:12, padding:"9px 14px", transform:"rotate(2deg)", fontSize:12, color:"rgba(255,255,255,0.8)", fontWeight:600, whiteSpace:"nowrap" }}>Hired in 18 min</div>
-              <div style={{ position:"absolute", bottom:28, left:-32, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:12, padding:"9px 14px", transform:"rotate(-2deg)", fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:600, whiteSpace:"nowrap" }}>Police Verified</div>
+              <div style={{ position:"absolute", top:-18, right:-24, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(0,229,195,0.3)", borderRadius:12, padding:"9px 14px", transform:"rotate(2deg)", fontSize:12, color:"rgba(255,255,255,0.8)", fontWeight:600, whiteSpace:"nowrap" }}>Project demo mode</div>
+              <div style={{ position:"absolute", bottom:28, left:-32, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:12, padding:"9px 14px", transform:"rotate(-2deg)", fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:600, whiteSpace:"nowrap" }}>Trust-first workflow</div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="sec-pad reveal" data-reveal="true" style={{ padding:"72px 32px", background:"#F7FAFC", borderTop:"1px solid #E8EDF4", borderBottom:"1px solid #E8EDF4" }}>
+        <div style={{ maxWidth:1200, margin:"0 auto" }}>
+          <div style={Object.assign(row("flex-end","space-between"), { marginBottom:20, gap:14 })}>
+            <div>
+              <Chip label="PROJECT DIFFERENTIATOR" color={T.violet} size={11} />
+              <h2 className="font-display" style={{ fontSize:34, fontWeight:800, color:T.ink, marginTop:10, letterSpacing:"-1px" }}>How this project is different from common hiring options</h2>
+              <p style={{ marginTop:8, fontSize:14, color:T.muted, maxWidth:760 }}>For panel review: this section compares our approach with agencies and listing apps on trust, transparency, and day-to-day usability.</p>
+            </div>
+            <BtnTeal onClick={function(){ setPage("pricing"); }} style={{ padding:"10px 14px", fontSize:12.5 }}>See implementation model</BtnTeal>
+          </div>
+
+          <div style={card(14, { overflow:"hidden" })}>
+            <div style={{ display:"grid", gridTemplateColumns:"1.3fr 1fr 1fr 1.25fr", background:"linear-gradient(90deg,#EEF4FF 0%,#F5F0E6 100%)", borderBottom:"1px solid #E2E8F0" }}>
+              {["Decision Area", "Traditional Agency", "Generic Marketplace", "Shramik"].map(function(head, idx) {
+                return (
+                  <div key={head} style={{ padding:"12px 14px", fontSize:12.5, fontWeight:800, color:idx===3 ? "#8A6A2B" : T.body, borderLeft:idx>0?"1px solid #E2E8F0":"none" }}>{head}</div>
+                );
+              })}
+            </div>
+            {comparisonRows.map(function(rowItem) {
+              return (
+                <div key={rowItem[0]} style={{ display:"grid", gridTemplateColumns:"1.3fr 1fr 1fr 1.25fr", borderBottom:"1px solid #EEF2F7" }}>
+                  <div style={{ padding:"12px 14px", fontSize:12.5, fontWeight:700, color:T.ink }}>{rowItem[0]}</div>
+                  <div style={{ padding:"12px 14px", fontSize:12.5, color:T.muted, borderLeft:"1px solid #EEF2F7" }}>{rowItem[1]}</div>
+                  <div style={{ padding:"12px 14px", fontSize:12.5, color:T.muted, borderLeft:"1px solid #EEF2F7" }}>{rowItem[2]}</div>
+                  <div style={{ padding:"12px 14px", fontSize:12.5, color:"#7A5C22", fontWeight:700, borderLeft:"1px solid #EEF2F7", background:"linear-gradient(90deg,rgba(200,169,106,0.08) 0%,rgba(0,229,195,0.04) 100%)" }}>{rowItem[3]}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="sec-pad reveal" data-reveal="true" style={{ padding:"76px 32px", background:"linear-gradient(145deg,#0A162A 0%,#101D33 52%,#1C2234 100%)", borderTop:"1px solid rgba(200,169,106,0.22)", borderBottom:"1px solid rgba(200,169,106,0.22)" }}>
+        <div style={{ maxWidth:1200, margin:"0 auto" }}>
+          <div style={{ marginBottom:22 }}>
+            <Chip label="SIGNATURE INNOVATIONS" color={T.amber} size={11} />
+            <h2 className="font-display" style={{ fontSize:36, fontWeight:800, color:"#fff", marginTop:10, letterSpacing:"-1px" }}>Revolutionary features for next-generation worker hiring</h2>
+            <p style={{ marginTop:8, fontSize:14, color:"rgba(255,255,255,0.62)", maxWidth:860 }}>Designed to make Shramik feel premium and future-ready while still practical for your current project scope.</p>
+          </div>
+
+          <div className="grid-3" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, marginBottom:18 }}>
+            {[
+              ["concierge","AI Concierge Match","Smart shortlist using role, area, budget, and urgency in one tap."],
+              ["wallet","Trust Wallet","Portable work identity with verified history and reliability trends."],
+              ["voice","Voice Booking Assist","Hindi/English voice-led booking for low-literacy users."],
+            ].map(function(item) {
+              var active = innovation === item[0];
+              return (
+                <button key={item[0]} onClick={function(){ selectInnovation(item[0]); }} style={{ textAlign:"left", border:active?"1px solid rgba(200,169,106,0.65)":"1px solid rgba(255,255,255,0.16)", background:active?"linear-gradient(140deg,rgba(200,169,106,0.18) 0%,rgba(0,229,195,0.08) 100%)":"rgba(255,255,255,0.04)", borderRadius:T.rM, padding:"18px 16px", cursor:"pointer", color:"#fff", fontFamily:"'Plus Jakarta Sans',system-ui" }}>
+                  <div className="font-display" style={{ fontSize:18, fontWeight:800, marginBottom:6 }}>{item[1]}</div>
+                  <div style={{ fontSize:13, color:"rgba(255,255,255,0.68)", lineHeight:1.6 }}>{item[2]}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div style={{ border:"1px solid rgba(200,169,106,0.35)", background:"linear-gradient(130deg,rgba(255,255,255,0.08) 0%,rgba(200,169,106,0.10) 100%)", borderRadius:T.rM, padding:"18px 20px" }}>
+            <div style={{ fontSize:12, letterSpacing:0.4, fontWeight:700, color:"#C8A96A", marginBottom:6 }}>LIVE PREVIEW DESCRIPTION</div>
+            <p style={{ fontSize:14, color:"rgba(255,255,255,0.82)", lineHeight:1.75, margin:0 }}>
+              {innovation === "concierge" ? "AI Concierge Match can suggest top workers with confidence indicators and explain why each profile is recommended."
+                : innovation === "wallet" ? "Trust Wallet can aggregate profile consistency, attendance, employer feedback, and completed jobs into one portable reputation graph."
+                : "Voice Booking Assist can allow spoken prompts, quick confirmations, and auto-filled hiring request details for first-time users."}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="sec-pad reveal" data-reveal="true" style={{ padding:"64px 32px", background:T.white, borderBottom:"1px solid #E8EDF4" }}>
+        <div style={{ maxWidth:1200, margin:"0 auto" }}>
+          <div style={{ marginBottom:18 }}>
+            <Chip label="FOR PANELISTS" color={T.teal} size={11} />
+            <h2 className="font-display" style={{ fontSize:32, fontWeight:800, color:T.ink, marginTop:10 }}>Project understanding in 60 seconds</h2>
+            <p style={{ marginTop:8, fontSize:14, color:T.muted, maxWidth:860 }}>This section is added for academic evaluation: what problem we picked, what we built, what is currently in scope, and what can be extended in future iterations.</p>
+          </div>
+
+          <div className="grid-4" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12 }}>
+            {[
+              ["Problem", "Local informal hiring is trust-deficient and unstructured for both workers and families."],
+              ["Our Approach", "Single platform flow with worker profiles, role-based onboarding, and basic trust indicators."],
+              ["Implemented Scope", "Worker discovery, onboarding, hire request flow, society/admin dashboard simulation."],
+              ["Next Iteration", "Live verification APIs, stronger analytics, and production-grade workflow automation."],
+            ].map(function(item) {
+              return (
+                <div key={item[0]} style={card(16, { borderTop:"3px solid "+T.teal, minHeight:170 })}>
+                  <div className="font-display" style={{ fontSize:18, fontWeight:800, color:T.ink, marginBottom:8 }}>{item[0]}</div>
+                  <p style={{ fontSize:13.5, color:T.body, lineHeight:1.65 }}>{item[1]}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1064,8 +1188,8 @@ function Landing(props) {
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div style={Object.assign(row("center","space-between"), { marginBottom:20, gap:10 })}>
             <div>
-              <Chip label="ONE TAP START" color={T.teal} size={11} />
-              <h2 className="font-display" style={{ fontSize:28, fontWeight:800, color:T.ink, marginTop:10 }}>No confusion. Start in one tap.</h2>
+              <Chip label="USER FLOW" color={T.teal} size={11} />
+              <h2 className="font-display" style={{ fontSize:28, fontWeight:800, color:T.ink, marginTop:10 }}>Choose a role and test the full workflow.</h2>
             </div>
             <button onClick={function(){ setEasyMode(function(v){ return !v; }); }} style={{ border:"1px solid "+(easyMode?T.teal:T.borderM), background:easyMode?T.teal+"15":T.white, color:easyMode?T.tealM:T.body, borderRadius:999, padding:"10px 14px", fontSize:12.5, fontWeight:700, cursor:"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" }}>
               {easyMode?"Easy Mode On":"Turn On Easy Mode"}
@@ -1093,14 +1217,14 @@ function Landing(props) {
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div className="grid-2" style={{ display:"grid", gridTemplateColumns:"1.12fr .88fr", gap:18 }}>
             <div style={card(24, { borderTop:"3px solid "+T.teal })}>
-              <Chip label={trS("Why families switch")} color={T.teal} size={11} />
-              <h3 className="font-display" style={{ fontSize:28, fontWeight:800, color:T.ink, marginTop:12, marginBottom:8 }}>Stronger than alternatives, simpler than agency workflows.</h3>
-              <p style={{ fontSize:14, color:T.muted, marginBottom:16 }}>{trS("Competitor audit: users value transparent pricing, replacement guarantee, and quick support.")}</p>
+              <Chip label={trS("Problem clarity")} color={T.teal} size={11} />
+              <h3 className="font-display" style={{ fontSize:28, fontWeight:800, color:T.ink, marginTop:12, marginBottom:8 }}>What problem we focused on and why it matters.</h3>
+              <p style={{ fontSize:14, color:T.muted, marginBottom:16 }}>{trS("Informal hiring is mostly unstructured. Families struggle with trust and workers struggle with visibility.")}</p>
               <div style={{ display:"grid", gridTemplateColumns:"1fr", gap:10 }}>
                 {[
-                  [trS("No hidden fees"), trS("Pay only after join")],
-                  [trS("Visible replacement SLA"), trS("1-tap replacement request")],
-                  [trS("Live support tracking"), trS("Track support ticket")],
+                  [trS("Identity and trust visibility"), trS("Profiles capture key details in one place")],
+                  [trS("Simple worker-family matching"), trS("Quickly find relevant workers by role and area")],
+                  [trS("Basic society operations layer"), trS("Track entry and worker records in one dashboard")],
                 ].map(function(item) {
                   return (
                     <div key={item[0]} style={{ border:"1px solid #E8EDF4", borderRadius:T.r, background:"#FAFCFF", padding:"11px 12px" }}>
@@ -1110,7 +1234,7 @@ function Landing(props) {
                   );
                 })}
               </div>
-              <div style={{ marginTop:14, fontSize:12.5, color:T.muted }}>{trS("Simple promise layer inspired by top platforms, without making the flow complex.")}</div>
+              <div style={{ marginTop:14, fontSize:12.5, color:T.muted }}>{trS("Scope is intentionally practical for a student project: clean flows, real problem fit, and clear feature boundaries.")}</div>
             </div>
 
             <div style={card(24, { borderTop:"3px solid "+T.violet })}>
@@ -1146,21 +1270,21 @@ function Landing(props) {
         </div>
       </section>
 
-      {/* PAIN SECTION */}
+      {/* PROBLEM/SOLUTION SECTION */}
       <section className="sec-pad reveal" data-reveal="true" style={{ padding:"100px 32px", background:T.white }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div className="section-intro">
             <Chip label="PROBLEM -> SOLUTION" color={T.violet} size={11} />
             <h2 className="font-display h2-big" style={{ fontSize:44, fontWeight:800, color:T.ink, letterSpacing:"-1.5px", lineHeight:1.1, marginTop:16 }}>
-              Trust is broken in hiring.<br /><span className="grad-teal">Shramik fixes it end-to-end.</span>
+              Real local hiring pain points.<br /><span className="grad-teal">Practical solution through Shramik.</span>
             </h2>
-            <p>Stop guesswork. Run verified hiring like a system.</p>
+            <p>Built and presented as a student implementation with clear assumptions and measurable outcomes.</p>
           </div>
           <div className="grid-3" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
             {[
-              { who:"Families", color:T.violet, problem:"Hiring through forwards and agencies feels risky, slow, and expensive.", solution:"Get police-cleared, background-verified profiles with trusted employer reviews. Average hire time drops to 22 minutes.", stats:[["22 min","Avg hire time"],["97%","Safety confidence"]] },
-              { who:"Societies", color:T.teal, problem:"Recurring workers enter daily with no unified registry and no risk alerts.", solution:"Manage all workers in one hub with QR entry logs, real-time alerts, approvals, and monthly compliance-ready audit reports.", stats:[["0","Target incidents"],["72+","Workers managed"]] },
-              { who:"Workers", color:T.amber, problem:"Years of honest work are invisible without a verified professional record.", solution:"Build a portable Trust Score and verified history that follows you across employers and cities, unlocking higher income.", stats:[["35-45%","Income uplift"],["0","Joining cost"]] },
+              { who:"Families", color:T.violet, problem:"Hard to trust unknown workers from random references.", solution:"Shramik shows structured worker details, ratings, and contact flow in one place.", stats:[["1","Unified profile view"],["3-step","Simple hire path"]] },
+              { who:"Societies", color:T.teal, problem:"No single view of recurring workers and entries.", solution:"Society dashboard centralizes records and improves daily coordination.", stats:[["1","Common dashboard"],["Role-based","Access flow"]] },
+              { who:"Workers", color:T.amber, problem:"Skills and work history are not documented clearly.", solution:"Worker onboarding captures role, area, pay expectation, and availability for better matching.", stats:[["Profile","Portable details"],["0","Onboarding fee"]] },
             ].map(function(s) {
               return (
                 <div key={s.who} className="lift card-glow" style={card(32, { borderTop:"3px solid "+s.color, cursor:"default" })}>
@@ -2024,11 +2148,16 @@ function WorkerView(props) {
   var w = WORKERS.filter(function(x){ return x.id===wId; })[0] || WORKERS[0];
   var hireState=useState(false), ratedState=useState(0);
   var hireDateState=useState(""), hireDurationState=useState("Part-time (4 hrs/day)"), hireMessageState=useState(""), toastState=useState("");
+  var hireEmployerNameState=useState(""), hireEmployerPhoneState=useState(""), hireLocationState=useState(""), hireBudgetState=useState("");
   var hire=hireState[0],setHire=hireState[1];
   var rated=ratedState[0],setRated=ratedState[1];
   var hireDate=hireDateState[0],setHireDate=hireDateState[1];
   var hireDuration=hireDurationState[0],setHireDuration=hireDurationState[1];
   var hireMessage=hireMessageState[0],setHireMessage=hireMessageState[1];
+  var hireEmployerName=hireEmployerNameState[0],setHireEmployerName=hireEmployerNameState[1];
+  var hireEmployerPhone=hireEmployerPhoneState[0],setHireEmployerPhone=hireEmployerPhoneState[1];
+  var hireLocation=hireLocationState[0],setHireLocation=hireLocationState[1];
+  var hireBudget=hireBudgetState[0],setHireBudget=hireBudgetState[1];
   var toast=toastState[0],setToast=toastState[1];
 
   function notify(message, type, title) {
@@ -2037,18 +2166,34 @@ function WorkerView(props) {
   }
 
   async function submitHireRequest() {
+    if (!hireEmployerName.trim()) {
+      notify("Please enter your name.", "warn", "Missing details");
+      return;
+    }
+    if (hireEmployerPhone.replace(/\D/g, "").length < 10) {
+      notify("Please enter a valid phone number.", "warn", "Missing details");
+      return;
+    }
+    if (!hireLocation.trim()) {
+      notify("Please enter your area.", "warn", "Missing details");
+      return;
+    }
     if (!hireDate) {
       notify("Please choose a start date before sending the request.", "warn", "Missing details");
       return;
     }
     try {
       await apiSubmitContact({
-        name:"Hire Request",
-        phone:"9999999999",
-        message:"Hire request for "+w.name+". Start: "+hireDate+". Duration: "+hireDuration+". Note: "+(hireMessage || "N/A")
+        name:hireEmployerName,
+        phone:hireEmployerPhone,
+        message:"Hire request for "+w.name+". Need: "+w.role+". Budget: "+(hireBudget || "Not provided")+". Area: "+hireLocation+". Start: "+hireDate+". Duration: "+hireDuration+". Note: "+(hireMessage || "N/A")
       });
       setHire(false);
       setHireMessage("");
+      setHireEmployerName("");
+      setHireEmployerPhone("");
+      setHireLocation("");
+      setHireBudget("");
       notify("Hire request sent to "+w.name+".", "success", "Request sent");
     } catch {
       notify("Could not send hire request. Check backend and retry.", "warn", "Request failed");
@@ -2152,6 +2297,22 @@ function WorkerView(props) {
           <div style={card(32, { maxWidth:440, width:"100%" })} onClick={function(e){ e.stopPropagation(); }}>
             <div className="font-display" style={{ fontSize:20, fontWeight:800, color:T.ink, marginBottom:6 }}>Hire {w.name}</div>
             <p style={{ fontSize:14, color:T.muted, marginBottom:22 }}>Direct hire. No commission. No middleman.</p>
+            <div style={{ marginBottom:14 }}>
+              <div style={{ fontSize:12.5, fontWeight:600, color:T.ink, marginBottom:6 }}>Your Name</div>
+              <input value={hireEmployerName} onChange={function(e){ setHireEmployerName(e.target.value); }} placeholder="Enter your name" style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} />
+            </div>
+            <div style={{ marginBottom:14 }}>
+              <div style={{ fontSize:12.5, fontWeight:600, color:T.ink, marginBottom:6 }}>Phone Number</div>
+              <input value={hireEmployerPhone} onChange={function(e){ setHireEmployerPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); }} placeholder="10-digit mobile" style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} />
+            </div>
+            <div style={{ marginBottom:14 }}>
+              <div style={{ fontSize:12.5, fontWeight:600, color:T.ink, marginBottom:6 }}>Your Area</div>
+              <input value={hireLocation} onChange={function(e){ setHireLocation(e.target.value); }} placeholder="Locality or city" style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} />
+            </div>
+            <div style={{ marginBottom:14 }}>
+              <div style={{ fontSize:12.5, fontWeight:600, color:T.ink, marginBottom:6 }}>Monthly Budget (optional)</div>
+              <input value={hireBudget} onChange={function(e){ setHireBudget(e.target.value.replace(/\D/g, "").slice(0, 6)); }} placeholder="e.g. 14000" style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} />
+            </div>
             <div style={{ marginBottom:14 }}>
               <div style={{ fontSize:12.5, fontWeight:600, color:T.ink, marginBottom:6 }}>Start Date</div>
               <input type="date" value={hireDate} onChange={function(e){ setHireDate(e.target.value); }} style={Object.assign({}, inp, { borderRadius:T.r, height:44 })} />
@@ -2593,12 +2754,21 @@ function Enterprise(props) {
 function Auth(props) {
   var setPage=props.setPage, setUser=props.setUser, setWorkerProfile=props.setWorkerProfile;
   var stepState=useState(1), roleState=useState(""), phoneState=useState(""), nameState=useState(""), loadState=useState(false), toastState=useState("");
+  var workerSkillState=useState("Domestic Helper"), workerSalaryState=useState(""), workerAreaState=useState(""), workerAvailabilityState=useState("Available");
+  var employerNeedState=useState("Domestic Help"), employerBudgetState=useState(""), employerAreaState=useState("");
   var step=stepState[0],setStep=stepState[1];
   var role=roleState[0],setRole=roleState[1];
   var phone=phoneState[0],setPhone=phoneState[1];
   var name=nameState[0],setName=nameState[1];
   var loading=loadState[0],setLoading=loadState[1];
   var toast=toastState[0],setToast=toastState[1];
+  var workerSkill=workerSkillState[0],setWorkerSkill=workerSkillState[1];
+  var workerSalary=workerSalaryState[0],setWorkerSalary=workerSalaryState[1];
+  var workerArea=workerAreaState[0],setWorkerArea=workerAreaState[1];
+  var workerAvailability=workerAvailabilityState[0],setWorkerAvailability=workerAvailabilityState[1];
+  var employerNeed=employerNeedState[0],setEmployerNeed=employerNeedState[1];
+  var employerBudget=employerBudgetState[0],setEmployerBudget=employerBudgetState[1];
+  var employerArea=employerAreaState[0],setEmployerArea=employerAreaState[1];
   var otpState=useState(["","","","","",""]);
   var otp=otpState[0],setOtp=otpState[1];
 
@@ -2620,20 +2790,28 @@ function Auth(props) {
       var names = { worker:name||"Rekha Devi", employer:name||"Sharma Family", society:name||"Prestige Society", admin:"Admin" };
       var types = { worker:"worker", employer:"employer", society:"society", admin:"admin" };
       var selectedRole = role || "employer";
-      var u = { name:names[selectedRole]||names.employer, type:types[selectedRole]||"employer", phone:phone };
+      var u = {
+        name:names[selectedRole]||names.employer,
+        type:types[selectedRole]||"employer",
+        phone:phone,
+        need: selectedRole === "employer" ? employerNeed : undefined,
+        budget: selectedRole === "employer" ? employerBudget : undefined,
+        area: selectedRole === "employer" ? employerArea : undefined,
+      };
       setUser(u);
       if (selectedRole === "worker" && setWorkerProfile) {
         setWorkerProfile({
           name: u.name,
-          role: "Domestic Helper",
+          role: workerSkill || "Domestic Helper",
           city: "Hyderabad",
-          area: "Local Area",
-          salary: "12,000/mo",
+          area: workerArea || "Local Area",
+          salary: (workerSalary ? workerSalary + "/mo" : "12,000/mo"),
           exp: 1,
-          bio: "New worker profile. Update your role, city, skills, and salary from Edit Profile.",
-          skills: ["General Work"],
+          bio: "Worker profile created. Keep this updated to get better and faster job matches.",
+          skills: [workerSkill || "General Work"],
           avi: initialsFromName(u.name),
           color: T.amber,
+          avail: workerAvailability,
           jobs: [],
         });
       }
@@ -2771,6 +2949,51 @@ function Auth(props) {
               </div>
               <input value={name} onChange={function(e){ setName(e.target.value); }} placeholder={trS("Your full name")}
                 style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 16px", height:50, fontSize:15, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui", marginBottom:18 }} />
+
+              {role==="worker" && (
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
+                  <div>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Work type</div>
+                    <select value={workerSkill} onChange={function(e){ setWorkerSkill(e.target.value); }} style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }}>
+                      {["Domestic Helper","Cook","Driver","Plumber","Electrician","Security Guard","Caregiver"].map(function(opt){ return <option key={opt} style={{ color:T.ink }}>{opt}</option>; })}
+                    </select>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Expected pay / month</div>
+                    <input value={workerSalary} onChange={function(e){ setWorkerSalary(e.target.value.replace(/\D/g,"").slice(0,6)); }} placeholder="12000" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Area</div>
+                    <input value={workerArea} onChange={function(e){ setWorkerArea(e.target.value); }} placeholder="Your locality" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Availability</div>
+                    <select value={workerAvailability} onChange={function(e){ setWorkerAvailability(e.target.value); }} style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }}>
+                      {["Available","Partially Available","Not Available"].map(function(opt){ return <option key={opt} style={{ color:T.ink }}>{opt}</option>; })}
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {role==="employer" && (
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
+                  <div>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Need help for</div>
+                    <select value={employerNeed} onChange={function(e){ setEmployerNeed(e.target.value); }} style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }}>
+                      {["Domestic Help","Cook","Driver","Elder Care","Security","Plumber","Electrician"].map(function(opt){ return <option key={opt} style={{ color:T.ink }}>{opt}</option>; })}
+                    </select>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Budget / month</div>
+                    <input value={employerBudget} onChange={function(e){ setEmployerBudget(e.target.value.replace(/\D/g,"").slice(0,6)); }} placeholder="15000" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }} />
+                  </div>
+                  <div style={{ gridColumn:"1 / span 2" }}>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Area</div>
+                    <input value={employerArea} onChange={function(e){ setEmployerArea(e.target.value); }} placeholder="Locality / city" style={{ width:"100%", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)", borderRadius:T.rM, color:"#fff", padding:"0 12px", height:42, fontSize:13.5, outline:"none", fontFamily:"'Plus Jakarta Sans',system-ui" }} />
+                  </div>
+                </div>
+              )}
+
               <BtnTeal onClick={finish} disabled={otp.join("").length<4 || !name.trim() || loading} full={true} style={{ padding:"13px" }}>
                 {loading?"Verifying...":"Enter Dashboard"}
               </BtnTeal>
