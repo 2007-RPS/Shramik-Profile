@@ -27,7 +27,64 @@ const T = {
   r:"10px", rM:"16px", rL:"22px", rX:"32px",
 };
 
-// --- GLOBAL STYLES -------------------------------------------
+const IS_TEST_MODE = (String(import.meta.env.VITE_TEST_MODE || "").toLowerCase() === "true") || import.meta.env.DEV;
+const API_BASE = String(import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+
+function apiUrl(path) {
+  if (!API_BASE) return path;
+  return API_BASE + path;
+}
+
+async function apiGetWorkers() {
+  var res = await fetch(apiUrl("/api/workers"));
+  if (!res.ok) throw new Error("Workers API failed");
+  var data = await res.json();
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.workers)) return data.workers;
+  return [];
+}
+
+async function apiSubmitContact(payload) {
+  var res = await fetch(apiUrl("/api/contact"), {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify(payload || {}),
+  });
+  if (!res.ok) {
+    throw new Error("Contact API failed");
+  }
+  return res.json().catch(function(){ return { ok:true }; });
+}
+
+function card(padding, extra) {
+  return Object.assign({
+    background:T.white,
+    border:"1px solid #E8EDF4",
+    borderRadius:T.rM,
+    boxShadow:T.s1,
+    padding:padding===undefined ? 20 : padding,
+  }, extra || {});
+}
+
+const inp = {
+  width:"100%",
+  height:44,
+  border:"1px solid #D5DEE9",
+  borderRadius:T.r,
+  background:"#fff",
+  color:T.ink,
+  padding:"0 12px",
+  fontSize:13.5,
+  fontFamily:"'Plus Jakarta Sans',system-ui",
+};
+
+const liquidControlStyle = {
+  border:"1px solid rgba(199,218,236,.9)",
+  background:"linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.38))",
+  backdropFilter:"blur(10px)",
+  WebkitBackdropFilter:"blur(10px)",
+};
+
 function GlobalStyles() {
   return (
     <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
@@ -40,360 +97,48 @@ function GlobalStyles() {
       h1,h2,h3{line-height:1.15}
       p{line-height:1.75}
       button,input,select,textarea{font-size:14px}
-      button{min-height:42px}
-      .grad-teal{background:linear-gradient(120deg,${T.teal},${T.violetL});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-      .grad-amber{background:linear-gradient(120deg,${T.amber},#F97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-      .grad-violet{background:linear-gradient(120deg,${T.violetL},${T.teal});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-      @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-      @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-      /* legacy duplicate block removed */
-          <div onClick={function(){ setPage(getDash()); }} style={Object.assign(row("center","flex-start",8), { cursor:"pointer", background:onDark?T.glass:T.subtle, borderRadius:T.r, padding:"6px 12px", border:"1px solid "+(onDark?T.glassB:"#E2E8F0") })}>
-            <Avi text={user.name[0]} bg={T.tealM} size={26} r={7} />
-            <span style={{ fontSize:13, fontWeight:600, color:onDark?"#fff":T.ink }}>{user.name.split(" ")[0]}</span>
-          </div>
-          <button onClick={function(){ setUser(null); setPage("landing"); }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:onDark?"rgba(255,255,255,0.45)":T.muted, fontFamily:"'Plus Jakarta Sans',system-ui" }}>Sign out</button>
-        </div>
-      );
-    }
-    return (
-      <div style={row("center","flex-end",10)}>
-        <button onClick={function(){ setPage("auth"); }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:13.5, fontWeight:600, color:onDark?"rgba(255,255,255,0.7)":T.body, fontFamily:"'Plus Jakarta Sans',system-ui" }}>Sign in</button>
-        <BtnTeal onClick={function(){ setPage("auth"); }} style={{ padding:"8px 18px", fontSize:13 }}>Get started</BtnTeal>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <nav style={{ position:"sticky", top:0, zIndex:200, background:navBg, backdropFilter:"blur(24px)", borderBottom:"1px solid "+borderC }}>
-        <div style={Object.assign(row("center","space-between"), { maxWidth:1200, margin:"0 auto", height:60, padding:"0 24px" })}>
-          <div onClick={function(){ setPage("landing"); setMenuOpen(false); }} style={Object.assign(row("center","flex-start",10), { cursor:"pointer", flexShrink:0 })}>
-            <div style={{ width:32, height:32, borderRadius:9, background:"linear-gradient(135deg,"+T.teal+","+T.tealM+")", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, fontFamily:"'Syne',system-ui", fontWeight:800, color:T.base, flexShrink:0 }}>S</div>
-            <span className="font-display" style={{ fontSize:18, fontWeight:800, color:onDark?"#fff":T.ink, letterSpacing:"-0.5px", whiteSpace:"nowrap" }}>Shramik<span style={{ color:T.teal }}>.</span></span>
-          </div>
-
-          <div className="nav-links" style={row("center","flex-start",2)}>
-            {links.map(function(l) {
-              return (
-                <button key={l.id} onClick={function(){ setPage(l.id); }}
-                  style={{ background:"none", border:"none", cursor:"pointer", padding:"7px 12px", fontSize:13.5, fontWeight:page===l.id?700:500, color:page===l.id?T.teal:onDark?"rgba(255,255,255,0.7)":T.muted, fontFamily:"'Plus Jakarta Sans',system-ui", borderRadius:8, transition:"color 0.15s" }}>
-                  {l.l}
-                </button>
-              );
-            })}
-          </div>
-
-          <div style={row("center","flex-end",10)}>
-            <div className="nav-links">
-              <AuthButtons />
-            </div>
-            <button className="hamburger" onClick={function(){ setMenuOpen(function(o){ return !o; }); }}
-              style={{ background:"none", border:"1px solid "+(onDark?T.glassB:"#E2E8F0"), borderRadius:8, width:38, height:38, cursor:"pointer", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:5, padding:8, flexShrink:0 }}>
-              {[0,1,2].map(function(i) {
-                return <span key={i} style={{ display:"block", width:18, height:2, background:onDark?"#fff":T.ink, borderRadius:2 }} />;
-              })}
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {menuOpen && (
-        <div className="anim-menuslide" style={{ position:"fixed", top:60, left:0, right:0, zIndex:199, background:onDark?"rgba(6,13,24,0.97)":"rgba(255,255,255,0.97)", backdropFilter:"blur(24px)", borderBottom:"1px solid "+borderC, padding:"16px 24px 24px" }}>
-          {links.map(function(l) {
-            return (
-              <button key={l.id} onClick={function(){ setPage(l.id); setMenuOpen(false); }}
-                style={{ display:"block", width:"100%", textAlign:"left", background:"none", border:"none", cursor:"pointer", padding:"12px 0", fontSize:16, fontWeight:page===l.id?700:500, color:page===l.id?T.teal:onDark?"#fff":T.ink, fontFamily:"'Plus Jakarta Sans',system-ui", borderBottom:"1px solid "+borderC }}>
-                {l.l}
-              </button>
-            );
-          })}
-          <div style={{ marginTop:16 }}><AuthButtons /></div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-*/
-
-// --- LANDING -------------------------------------------------
-/*
-              <div style={{ fontSize:13, color:"rgba(255,255,255,0.78)", fontWeight:700, marginBottom:18 }}>Built for {words[wi]} operations.</div>
-              <div style={{ marginBottom:20 }}>
-                <span className="easy-chip">Simple screens • Big actions • Hindi-friendly flow</span>
-              </div>
-              <div className="hero-proof-row anim-fadeup-1">
-                {[
-                  "Clear worker profile and review history",
-                  "Quick shortlist for common local jobs",
-                  "Simple UI with Hindi-friendly flow"
-                ].map(function(item) {
-                  return (
-                    <div key={item} className="hero-proof-pill">
-                      <span style={{ width:7, height:7, borderRadius:"50%", background:T.teal, flexShrink:0 }} />
-                      <span>{item}</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div style={Object.assign(row("center","flex-start",14), { marginBottom:44 })}>
-                <BtnTeal onClick={function(){ setPage("search"); }} style={{ padding:"14px 28px", fontSize:15 }}>Find workers now</BtnTeal>
-                <BtnGhost onClick={function(){ setPage("auth"); }} dark={true} style={{ padding:"14px 24px", fontSize:14 }}>Try worker onboarding</BtnGhost>
-              </div>
-              <button onClick={function(){ var ok = speakText("Shramik helps workers and families hire safely. Use simple steps to start quickly."); if(!ok) setRoadmapMsg("Audio read is unavailable in this browser."); }} style={{ border:"none", background:"transparent", color:"rgba(255,255,255,0.78)", fontSize:12.5, textDecoration:"underline", cursor:"pointer", padding:0, marginTop:-28, marginBottom:32, fontFamily:"'Plus Jakarta Sans',system-ui" }}>
-                Need audio guide? Play quick intro
-              </button>
-
-              <div className="hero-stats">
-                {[[counts.w.toLocaleString()+"+","Verified workers"],[counts.s.toLocaleString()+"+","Societies"],[Math.floor(counts.r/1000)+"K+","Verified ratings"]].map(function(item) {
-                  return (
-                    <div key={item[1]}>
-                      <div className="font-display" style={{ fontSize:30, fontWeight:800, color:T.teal, lineHeight:1 }}>{item[0]}</div>
-                      <div style={{ fontSize:13, color:"rgba(255,255,255,0.45)", marginTop:4 }}>{item[1]}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="anim-float anim-fadeup-1" style={{ position:"relative" }}>
-              <div className="hero-card-shell">
-                <div style={Object.assign(row("flex-start","space-between"), { marginBottom:20 })}>
-                  <div style={row("flex-start","flex-start",14)}>
-                    <Avi text="RD" bg={T.tealM} size={54} r={14} ring={true} />
-                    <div>
-                      <div className="font-display" style={{ fontSize:17, fontWeight:800, color:"#fff" }}>Rekha Devi</div>
-                      <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginTop:2 }}>Domestic Helper - 7 yrs</div>
-                      <div style={{ marginTop:6 }}><Chip label="Verified" color={T.teal} /></div>
-                    </div>
-                  </div>
-                  <Score n={4.8} count={34} />
-                </div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:18 }}>
-                  {[['7 yrs','Experience'],['34','Reviews'],['98%','Completion']].map(function(item) {
-                    return (
-                      <div key={item[1]} style={{ background:T.glass, borderRadius:10, padding:"12px 10px", textAlign:"center", border:"1px solid rgba(255,255,255,0.06)" }}>
-                        <div style={{ fontSize:16, fontWeight:800, color:T.teal }}>{item[0]}</div>
-                        <div style={{ fontSize:10, color:"rgba(255,255,255,0.45)", marginTop:2 }}>{item[1]}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div style={{ background:T.glass, borderRadius:12, padding:"12px 14px", marginBottom:18 }}>
-                  <div style={{ fontSize:11, color:T.teal, fontWeight:700, marginBottom:5 }}>Latest Review</div>
-                  <p style={{ fontSize:12.5, color:"rgba(255,255,255,0.65)", fontStyle:"italic", lineHeight:1.65 }}>"Rekha is exceptional - punctual, honest, and an outstanding cook."</p>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.35)", marginTop:5 }}>- Sharma Family, Banjara Hills</div>
-                </div>
-                <BtnTeal onClick={function(){ setPage("search"); }} full={true} style={{ padding:"11px", fontSize:13.5 }}>View Profile and Hire</BtnTeal>
-              </div>
-              <div style={{ position:"absolute", top:-18, right:-24, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(0,229,195,0.3)", borderRadius:12, padding:"9px 14px", transform:"rotate(2deg)", fontSize:12, color:"rgba(255,255,255,0.8)", fontWeight:600, whiteSpace:"nowrap" }}>Project demo mode</div>
-              <div style={{ position:"absolute", bottom:28, left:-32, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:12, padding:"9px 14px", transform:"rotate(-2deg)", fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:600, whiteSpace:"nowrap" }}>Trust-first workflow</div>
-            </div>
-          </div>
-        </div>
-      </section>
-      .font-display{font-family:'Syne',system-ui,sans-serif;letter-spacing:-0.02em}
-      .h1-big{font-size:clamp(2.5rem,5vw,3.5rem)!important;letter-spacing:-1.4px!important}
-      .h2-big{font-size:clamp(1.9rem,3.4vw,2.7rem)!important;letter-spacing:-1px!important}
-      h1,h2,h3{line-height:1.15}
-      p{line-height:1.75}
-      button,input,select,textarea{font-size:14px}
-      button{min-height:42px}
-      .main-wrap{max-width:1200px;margin:0 auto;width:100%}
-      .panel{background:${T.white};border:1px solid #E8EDF4;border-radius:${T.rM};box-shadow:${T.s1}}
-      .grad-teal{background:linear-gradient(120deg,${T.teal},${T.violetL});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-      .grad-amber{background:linear-gradient(120deg,${T.amber},#F97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-      .grad-violet{background:linear-gradient(120deg,${T.violetL},${T.teal});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-      @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-      @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-      @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-      @keyframes slideLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-      @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.95)}}
-      @keyframes menuSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-      .anim-fadeup{animation:fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) both}
-      .anim-fadeup-1{animation:fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.1s both}
-      .anim-fadeup-2{animation:fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.2s both}
-      .anim-fadein{animation:fadeIn 0.4s ease both}
-      .anim-float{animation:floatY 4s ease-in-out infinite}
-      .anim-menuslide{animation:menuSlide 0.25s cubic-bezier(0.22,1,0.36,1) both}
-      .lift{transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.22s ease,border-color 0.2s}
-      .lift:hover{transform:translateY(-3px)}
-      .card-glow:hover{box-shadow:0 0 0 1.5px ${T.teal}44,0 12px 40px rgba(0,229,195,0.14)}
-      .btn-teal:hover{filter:brightness(1.08);transform:translateY(-2px)}
-      .btn-ghost:hover{border-color:${T.teal}!important;color:${T.teal}!important}
-      .btn-teal:active,.btn-ghost:active{transform:translateY(1px) scale(.985)}
-      .btn-teal:disabled,.btn-ghost:disabled{transform:none!important;filter:none!important;box-shadow:none!important}
-      .reveal{opacity:0;transform:translateY(26px);transition:opacity 0.7s ease,transform 0.7s cubic-bezier(0.22,1,0.36,1)}
-      .reveal.in{opacity:1;transform:translateY(0)}
-      .stagger-1{transition-delay:.06s}
-      .stagger-2{transition-delay:.12s}
-      .stagger-3{transition-delay:.18s}
-      ::-webkit-scrollbar{width:5px}
-      ::-webkit-scrollbar-track{background:${T.offwhite}}
-      ::-webkit-scrollbar-thumb{background:${T.borderM};border-radius:3px}
-      .marquee{display:flex;width:max-content;animation:slideLeft 32s linear infinite}
-      .marquee:hover{animation-play-state:paused}
-      .mesh-bg{background:radial-gradient(ellipse 80% 60% at 20% 40%,rgba(0,229,195,0.13) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 20%,rgba(139,92,246,0.11) 0%,transparent 60%),${T.base}}
-      .dot-bg{background-image:radial-gradient(circle,rgba(255,255,255,0.035) 1px,transparent 1px);background-size:28px 28px}
-      .tab-on{background:${T.teal}!important;color:${T.base}!important;font-weight:700!important}
-      input,textarea,select{font-family:'Plus Jakarta Sans',system-ui;color:${T.ink}}
-      input,textarea,select,button{border-radius:${T.r}}
-      input:focus,textarea:focus,select:focus,button:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(0,229,195,0.18)}
-      input::placeholder,textarea::placeholder{color:${T.dim}}
-      select option{background:#fff;color:${T.ink}}
+      .mesh-bg{background:radial-gradient(ellipse 80% 60% at 20% 40%,rgba(0,229,195,.13) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 20%,rgba(139,92,246,.11) 0%,transparent 60%),${T.base}}
+      @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.65;transform:scale(.95)}}
+      .nav-links{display:flex}
       .hamburger{display:none}
-      .filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;padding:10px 12px;border:1px solid rgba(255,255,255,.45);border-radius:16px;background:linear-gradient(135deg,rgba(255,255,255,.42),rgba(255,255,255,.18));backdrop-filter:blur(18px) saturate(130%);-webkit-backdrop-filter:blur(18px) saturate(130%);box-shadow:0 12px 34px rgba(15,23,42,.12),inset 0 1px 0 rgba(255,255,255,.45)}
-      .filter-field{display:flex;flex-direction:column;gap:6px}
-      .filter-label{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#4F6C88}
-      .filter-select{width:126px;height:38px}
-      .filter-select.city{width:126px}
-      .filter-search{width:220px;min-width:180px;height:40px}
-      .filter-actions{display:flex;gap:8px;align-items:flex-end;margin-left:auto}
-      .liquid-control{background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.38))!important;border:1px solid rgba(199,218,236,.9)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
-      .view-toggle{min-width:72px;height:38px;border-radius:${T.r};display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;font-weight:800;letter-spacing:.02em}
-      .search-sticky{margin-top:14px}
-      .empty-state{padding:28px;background:${T.white};border:1px dashed ${T.borderM};border-radius:${T.rM};text-align:center;color:${T.muted}}
-      .page-note{font-size:12.5px;color:${T.muted};margin-top:8px}
-      .page-shell{min-height:100vh;background:${T.offwhite}}
+      .hero-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+      .hero-proof-row{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+      .hero-proof-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:11.5px;font-weight:700;color:rgba(255,255,255,.76)}
+      .hero-card-shell{background:linear-gradient(180deg,rgba(12,24,41,.88) 0%,rgba(9,18,31,.94) 100%);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15);border-radius:${T.rX};padding:20px}
+      .home-feature-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+      .home-feature-card{min-height:140px}
+      .role-quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+      .section-intro{max-width:760px;margin:0 auto 40px;text-align:center}
       .page-wrap{max-width:1100px;margin:0 auto;padding:32px}
       .page-wrap-wide{max-width:1200px;margin:0 auto;padding:32px}
-      .section-soft{background:linear-gradient(145deg,rgba(255,255,255,.48) 0%,rgba(247,250,253,.26) 100%);border:1px solid rgba(255,255,255,.58);border-radius:${T.rM};box-shadow:0 12px 34px rgba(15,23,42,.1),inset 0 1px 0 rgba(255,255,255,.52);backdrop-filter:blur(18px) saturate(130%);-webkit-backdrop-filter:blur(18px) saturate(130%)}
-      .page-enter{animation:fadeUp .45s cubic-bezier(0.22,1,0.36,1) both}
-      .clicky{transition:transform .18s ease, box-shadow .18s ease}
-      .clicky:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,23,42,.1)}
-      .easy-mode{font-size:17px}
-      .easy-mode button{min-height:48px;font-size:15px}
-      .easy-mode input,.easy-mode select,.easy-mode textarea{min-height:46px;font-size:15px}
-      .compact-btn{min-height:34px!important;font-size:12px!important;padding-top:7px!important;padding-bottom:7px!important}
-      .compact-nav-btn{min-height:36px!important;font-size:13px!important}
-      .easy-chip{display:inline-flex;align-items:center;gap:6px;background:${T.teal}15;border:1px solid ${T.teal}44;color:${T.tealM};border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700}
-      .dashboard-hero{background:linear-gradient(135deg,${T.l1} 0%,${T.l2} 55%,#17304B 100%);border-radius:${T.rX};padding:28px;border:1px solid rgba(255,255,255,0.08);box-shadow:${T.s3};color:#fff}
-      .dashboard-sub{font-size:13px;color:rgba(255,255,255,0.58);margin-top:6px}
-      .dashboard-chipbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-      .metric-card{background:linear-gradient(145deg,rgba(255,255,255,.52) 0%,rgba(248,251,254,.28) 100%);border:1px solid rgba(255,255,255,.6);border-radius:${T.rM};padding:20px;box-shadow:0 12px 30px rgba(15,23,42,.08),inset 0 1px 0 rgba(255,255,255,.5);backdrop-filter:blur(16px) saturate(120%);-webkit-backdrop-filter:blur(16px) saturate(120%)}
-      .action-tile{background:linear-gradient(145deg,rgba(255,255,255,.5) 0%,rgba(248,251,254,.26) 100%);border:1px solid rgba(255,255,255,.58);border-radius:${T.rM};padding:18px;box-shadow:0 10px 28px rgba(15,23,42,.08),inset 0 1px 0 rgba(255,255,255,.5);backdrop-filter:blur(15px) saturate(120%);-webkit-backdrop-filter:blur(15px) saturate(120%);transition:transform .18s ease, box-shadow .18s ease}
-      .action-tile:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,23,42,.08)}
-      .toast{position:fixed;right:20px;bottom:20px;z-index:500;display:flex;align-items:flex-start;gap:10px;background:${T.ink};color:#fff;border-radius:16px;padding:12px 14px;box-shadow:${T.s3};font-size:13px;font-weight:600;max-width:320px;border:1px solid rgba(255,255,255,.08);animation:fadeUp .22s ease both}
-      .toast-icon{width:24px;height:24px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
-      .toast-copy{display:flex;flex-direction:column;gap:2px}
-      .toast-title{font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.62)}
-      .toast-text{font-size:13px;line-height:1.5;color:#fff}
-      .toast.success .toast-icon{background:rgba(16,185,129,.18);color:#6EE7B7}
-      .toast.info .toast-icon{background:rgba(0,229,195,.18);color:${T.teal}}
-      .toast.warn .toast-icon{background:rgba(245,158,11,.18);color:#FCD34D}
-      .hero-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;padding-top:36px;border-top:1px solid rgba(255,255,255,0.06)}
-      .hero-copy{max-width:620px}
-      .hero-kicker{display:inline-flex;align-items:center;gap:8px;background:${T.glass};border:1px solid ${T.glassB};border-radius:${T.rX};padding:7px 16px}
-      .hero-heading{max-width:13ch;font-size:clamp(2.5rem,5vw,4rem)!important;letter-spacing:-1.7px!important;line-height:1.04!important;text-wrap:balance}
-      .hero-subcopy{max-width:62ch;font-size:15.5px;line-height:1.75;color:rgba(255,255,255,0.72)}
-      .hero-proof-row{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 32px}
-      .hero-proof-pill{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:700;color:rgba(255,255,255,0.76)}
-      .hero-card-shell{background:linear-gradient(180deg,rgba(12,24,41,0.88) 0%,rgba(9,18,31,0.94) 100%);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.15);border-radius:${T.rX};padding:28px;box-shadow:0 0 40px rgba(0,229,195,0.16),0 24px 64px rgba(0,0,0,0.5)}
-      .role-quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-      .assist-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:260;background:rgba(6,13,24,.95);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:8px 10px;display:flex;align-items:center;gap:8px;box-shadow:${T.s3}}
-      .assist-pill{border:none;border-radius:999px;padding:9px 14px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',system-ui}
-      .assist-pill.active{background:${T.teal};color:${T.base}}
-      .section-intro{max-width:760px;margin:0 auto 56px;text-align:center}
-      .section-intro p{font-size:15px;color:${T.muted};max-width:60ch;margin:14px auto 0}
-      .home-feature-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:18px}
-      .home-feature-core{grid-row:span 2;display:flex;flex-direction:column;justify-content:space-between}
-      .home-feature-card{min-height:168px}
       @media(max-width:900px){
         .nav-links{display:none!important}
         .hamburger{display:flex!important}
         .grid-hero{grid-template-columns:1fr!important}
         .grid-3{grid-template-columns:1fr 1fr!important}
         .grid-4{grid-template-columns:1fr 1fr!important}
-        .grid-plan{grid-template-columns:1fr!important}
-        .grid-profile{grid-template-columns:1fr!important}
         .footer-grid{grid-template-columns:1fr 1fr!important}
-        .filter-select,.filter-select.city{width:calc(50% - 4px)!important}
-        .filter-search{width:100%!important;min-width:100%!important}
-        .filter-actions{margin-left:0}
-        .hero-stats{grid-template-columns:1fr 1fr 1fr!important}
         .home-feature-grid{grid-template-columns:1fr 1fr!important}
-        .home-feature-core{grid-row:span 1}
-        .page-wrap,.page-wrap-wide{padding:26px 20px}
-        .dashboard-hero{padding:22px}
       }
       @media(max-width:600px){
-        .grid-3{grid-template-columns:1fr!important}
-        .grid-4{grid-template-columns:1fr!important}
-        .grid-2{grid-template-columns:1fr!important}
-        .bento-grid{grid-template-columns:1fr!important}
-        .h1-big{font-size:clamp(2rem,10vw,2.25rem)!important;letter-spacing:-0.8px!important}
-        .h2-big{font-size:clamp(1.5rem,7vw,1.8rem)!important}
-        .sec-pad{padding:56px 16px!important}
-        .otp-input{width:40px!important;height:50px!important;font-size:18px!important}
-        .sidebar-sticky{position:static!important}
-        .dash-4{grid-template-columns:1fr!important}
-        .footer-grid{grid-template-columns:1fr!important}
-        .filter-select,.filter-select.city,.filter-search{width:100%!important}
-        .filter-field{width:100%}
-        .filter-actions{width:100%;justify-content:flex-start}
-        .search-sticky{position:sticky;top:62px;z-index:110;background:linear-gradient(135deg,rgba(255,255,255,.34),rgba(255,255,255,.16));border:1px solid rgba(255,255,255,.5);border-radius:${T.r};padding:8px;backdrop-filter:blur(18px) saturate(130%);-webkit-backdrop-filter:blur(18px) saturate(130%)}
-        .search-sticky button,.search-sticky select,.search-sticky input{min-height:42px!important}
-        .hero-stats{grid-template-columns:1fr!important;gap:14px!important}
-        .hero-copy{max-width:none}
-        .hero-heading{max-width:none!important;font-size:clamp(2.15rem,9vw,2.8rem)!important;letter-spacing:-1.1px!important;line-height:1.02!important}
-        .hero-subcopy{text-align:left;font-size:15px}
-        .hero-proof-row{margin-bottom:24px}
-        .home-feature-grid{grid-template-columns:1fr!important}
-        .role-quick-grid{grid-template-columns:1fr!important}
-        .home-feature-card{min-height:auto}
-        .section-intro{margin-bottom:40px}
+        .grid-2,.grid-3,.grid-4,.bento-grid,.home-feature-grid,.role-quick-grid,.footer-grid{grid-template-columns:1fr!important}
+        .hero-stats{grid-template-columns:1fr!important;gap:12px!important}
         .page-wrap,.page-wrap-wide{padding:20px 14px}
-        .toast{left:14px;right:14px;bottom:14px;max-width:none}
-        .assist-bar{left:12px;right:12px;transform:none;justify-content:center;border-radius:${T.rM};padding:10px 8px}
-      }
-      @media(max-width:420px){
-        nav > div{padding:0 14px!important}
-        .sec-pad{padding:48px 14px!important}
-      }
-      @media (prefers-reduced-motion: reduce){
-        .reveal{opacity:1!important;transform:none!important;transition:none!important}
       }
     `}</style>
   );
 }
-// --- HELPERS -------------------------------------------------
-function row(align, justify, gap) {
-  return { display:"flex", alignItems:align||"center", justifyContent:justify||"flex-start", gap:gap||0, flexWrap:"wrap" };
-}
-function col(gap) { return { display:"flex", flexDirection:"column", gap:gap||0 }; }
-function card(p, extra) { return Object.assign({ background:"linear-gradient(145deg,rgba(255,255,255,.5) 0%,rgba(248,251,254,.26) 100%)", border:"1px solid rgba(255,255,255,.58)", borderRadius:T.rM, padding:p||24, boxShadow:"0 12px 30px rgba(15,23,42,.08),inset 0 1px 0 rgba(255,255,255,.5)", backdropFilter:"blur(16px) saturate(120%)", WebkitBackdropFilter:"blur(16px) saturate(120%)" }, extra||{}); }
-var inp = { width:"100%", background:"#F8FAFC", border:"1.5px solid #E2E8F0", borderRadius:T.r, padding:"11px 14px", fontSize:14, outline:"none", transition:"border-color 0.15s" };
-var liquidControlStyle = { background:"linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.38))", border:"1px solid rgba(199,218,236,.9)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", boxShadow:"inset 0 1px 0 rgba(255,255,255,.5)" };
 
-var API_BASE_URL = (typeof import.meta !== "undefined" && import.meta && import.meta.env && import.meta.env.VITE_API_BASE_URL
-  ? String(import.meta.env.VITE_API_BASE_URL)
-  : "http://localhost:8080").replace(/\/$/, "");
-var IS_TEST_MODE = (typeof import.meta !== "undefined" && import.meta && import.meta.env && Object.prototype.hasOwnProperty.call(import.meta.env, "VITE_TEST_MODE")
-  ? String(import.meta.env.VITE_TEST_MODE)
-  : "true").toLowerCase() !== "false";
-
-function apiUrl(path) {
-  return API_BASE_URL + path;
+function row(a,j,g) {
+  return { display:"flex", alignItems:a||"center", justifyContent:j||"flex-start", gap:g===undefined?0:g };
 }
 
-async function apiGetWorkers() {
-  var res = await fetch(apiUrl("/api/workers?limit=100"));
-  if (!res.ok) throw new Error("workers api unavailable");
-  var data = await res.json();
-  if (!data || !Array.isArray(data.items)) return [];
-  return data.items;
+function col(g,a,j) {
+  return { display:"flex", flexDirection:"column", gap:g===undefined?0:g, alignItems:a||"stretch", justifyContent:j||"flex-start" };
 }
 
-async function apiSubmitContact(payload) {
-  var res = await fetch(apiUrl("/api/contact"), {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify(payload)
-  });
-  var data = await res.json().catch(function(){ return {}; });
-  if (!res.ok) throw new Error(data.message || "contact submit failed");
-  return data;
+function INR(n) {
+  return "Rs. " + Number(n || 0).toLocaleString("en-IN");
 }
 
 function initialsFromName(name) {
@@ -522,6 +267,7 @@ function speakText(text) {
 }
 
 var HI_LABELS = {
+
   "Find Workers":"कामगार खोजें",
   "Pricing":"कीमत",
   "For Societies":"सोसायटी के लिए",
@@ -1116,33 +862,32 @@ function Landing(props) {
         </div>
       )}
       {/* HERO */}
-      <section className="mesh-bg dot-bg" style={{ padding:"88px 32px 100px", overflow:"hidden", position:"relative" }}>
-        <div style={{ position:"absolute", top:"15%", left:"8%", width:500, height:500, borderRadius:"50%", background:"radial-gradient(circle,rgba(0,229,195,0.12) 0%,transparent 70%)", pointerEvents:"none", filter:"blur(40px)" }} />
-        <div style={{ position:"absolute", top:"30%", right:"5%", width:400, height:400, borderRadius:"50%", background:"radial-gradient(circle,rgba(139,92,246,0.10) 0%,transparent 70%)", pointerEvents:"none", filter:"blur(40px)" }} />
+      <section className="dot-bg" style={{ minHeight:"calc(100vh - 60px)", padding:"20px 24px 16px", overflow:"hidden", position:"relative", display:"flex", alignItems:"center", background:"linear-gradient(135deg,#082033 0%,#10304A 52%,#1A4663 100%)" }}>
+        <div style={{ position:"absolute", top:"12%", left:"6%", width:360, height:360, borderRadius:"50%", background:"radial-gradient(circle,rgba(0,229,195,0.16) 0%,transparent 72%)", pointerEvents:"none", filter:"blur(36px)" }} />
+        <div style={{ position:"absolute", top:"18%", right:"4%", width:300, height:300, borderRadius:"50%", background:"radial-gradient(circle,rgba(139,92,246,0.14) 0%,transparent 72%)", pointerEvents:"none", filter:"blur(34px)" }} />
 
         <div style={{ maxWidth:1200, margin:"0 auto", position:"relative" }}>
-          <div className="grid-hero" style={{ display:"grid", gridTemplateColumns:"minmax(0,1.08fr) minmax(360px,.92fr)", gap:64, alignItems:"center" }}>
+          <div className="grid-hero" style={{ display:"grid", gridTemplateColumns:"minmax(0,1.08fr) minmax(350px,.92fr)", gap:28, alignItems:"center" }}>
             <div className="anim-fadeup hero-copy">
-              <div style={Object.assign(row("center","flex-start",8), { marginBottom:28 })}>
+              <div style={Object.assign(row("center","flex-start",8), { marginBottom:14 })}>
                 <div className="hero-kicker">
                   <div style={{ width:7, height:7, borderRadius:"50%", background:T.teal, animation:"pulse 2s infinite" }} />
                   <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,0.7)", letterSpacing:0.5 }}>Trusted local hiring platform</span>
                 </div>
               </div>
 
-              <h1 className="font-display h1-big hero-heading" style={{ fontWeight:800, color:"#fff", marginBottom:16 }}>
-                Trusted workers. Zero guesswork. Faster hiring.
+              <h1 className="font-display h1-big hero-heading" style={{ fontWeight:800, color:"#fff", marginBottom:10 }}>
+                Need to shortlist in 15 minutes?
               </h1>
-              <p className="hero-subcopy" style={{ marginBottom:22 }}>Win trust in minutes with verified profiles, clear reviews, and one-click hiring actions designed for families, societies, and enterprises.</p>
-              <div style={{ fontSize:13, color:"rgba(255,255,255,0.78)", fontWeight:700, marginBottom:18 }}>Built for {words[wi]} operations.</div>
+              <p className="hero-subcopy" style={{ marginBottom:12 }}>Shramik gives you verified local workers, trust signals, and ready-to-call profiles in one clean flow.</p>
+              <div style={{ fontSize:12.5, color:"rgba(255,255,255,0.8)", fontWeight:700, marginBottom:10 }}>Built for {words[wi]} operations.</div>
               <div style={{ marginBottom:20 }}>
                 <span className="easy-chip">Simple screens • Big actions • Hindi-friendly flow</span>
               </div>
-              <div className="hero-proof-row anim-fadeup-1">
+              <div className="hero-proof-row anim-fadeup-1" style={{ marginBottom:16 }}>
                 {[
                   "Clear worker profile and review history",
-                  "Quick shortlist for common local jobs",
-                  "Simple UI with Hindi-friendly flow"
+                  "Quick shortlist for common local jobs"
                 ].map(function(item) {
                   return (
                     <div key={item} className="hero-proof-pill">
@@ -1153,19 +898,16 @@ function Landing(props) {
                 })}
               </div>
 
-              <div style={Object.assign(row("center","flex-start",14), { marginBottom:44 })}>
-                <BtnTeal onClick={function(){ setPage("search"); }} style={{ padding:"14px 28px", fontSize:15 }}>Find workers now</BtnTeal>
-                <BtnGhost onClick={function(){ setPage("auth"); }} dark={true} style={{ padding:"14px 24px", fontSize:14 }}>Try worker onboarding</BtnGhost>
+              <div style={Object.assign(row("center","flex-start",12), { marginBottom:16 })}>
+                <BtnTeal onClick={function(){ setPage("search"); }} style={{ padding:"12px 22px", fontSize:14 }}>Find workers now</BtnTeal>
+                <BtnGhost onClick={function(){ setPage("auth"); }} dark={true} style={{ padding:"12px 18px", fontSize:13.5 }}>Try worker onboarding</BtnGhost>
               </div>
-              <button onClick={function(){ var ok = speakText("Shramik helps workers and families hire safely. Use simple steps to start quickly."); if(!ok) setRoadmapMsg("Audio read is unavailable in this browser."); }} style={{ border:"none", background:"transparent", color:"rgba(255,255,255,0.78)", fontSize:12.5, textDecoration:"underline", cursor:"pointer", padding:0, marginTop:-28, marginBottom:32, fontFamily:"'Plus Jakarta Sans',system-ui" }}>
-                Need audio guide? Play quick intro
-              </button>
 
-              <div className="hero-stats">
+              <div className="hero-stats" style={{ paddingTop:18, gap:18 }}>
                 {[[counts.w.toLocaleString()+"+","Verified workers"],[counts.s.toLocaleString()+"+","Societies"],[Math.floor(counts.r/1000)+"K+","Verified ratings"]].map(function(item) {
                   return (
                     <div key={item[1]}>
-                      <div className="font-display" style={{ fontSize:30, fontWeight:800, color:T.teal, lineHeight:1 }}>{item[0]}</div>
+                      <div className="font-display" style={{ fontSize:24, fontWeight:800, color:T.teal, lineHeight:1 }}>{item[0]}</div>
                       <div style={{ fontSize:13, color:"rgba(255,255,255,0.45)", marginTop:4 }}>{item[1]}</div>
                     </div>
                   );
@@ -1174,7 +916,7 @@ function Landing(props) {
             </div>
 
             <div className="anim-float anim-fadeup-1" style={{ position:"relative" }}>
-              <div className="hero-card-shell">
+              <div className="hero-card-shell" style={{ padding:20 }}>
                 <div style={Object.assign(row("flex-start","space-between"), { marginBottom:20 })}>
                   <div style={row("flex-start","flex-start",14)}>
                     <Avi text="RD" bg={T.tealM} size={54} r={14} ring={true} />
@@ -1186,7 +928,7 @@ function Landing(props) {
                   </div>
                   <Score n={4.8} count={34} />
                 </div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:18 }}>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:12 }}>
                   {[["7 yrs","Experience"],["34","Reviews"],["98%","Completion"]].map(function(item) {
                     return (
                       <div key={item[1]} style={{ background:T.glass, borderRadius:10, padding:"12px 10px", textAlign:"center", border:"1px solid rgba(255,255,255,0.06)" }}>
@@ -1196,12 +938,12 @@ function Landing(props) {
                     );
                   })}
                 </div>
-                <div style={{ background:T.glass, borderRadius:12, padding:"12px 14px", marginBottom:18 }}>
+                <div style={{ background:T.glass, borderRadius:12, padding:"10px 12px", marginBottom:12 }}>
                   <div style={{ fontSize:11, color:T.teal, fontWeight:700, marginBottom:5 }}>Latest Review</div>
                   <p style={{ fontSize:12.5, color:"rgba(255,255,255,0.65)", fontStyle:"italic", lineHeight:1.65 }}>"Rekha is exceptional - punctual, honest, and an outstanding cook."</p>
                   <div style={{ fontSize:11, color:"rgba(255,255,255,0.35)", marginTop:5 }}>- Sharma Family, Banjara Hills</div>
                 </div>
-                <BtnTeal onClick={function(){ setPage("search"); }} full={true} style={{ padding:"11px", fontSize:13.5 }}>View Profile and Hire</BtnTeal>
+                <BtnTeal onClick={function(){ setPage("search"); }} full={true} style={{ padding:"10px", fontSize:13 }}>View Profile and Hire</BtnTeal>
               </div>
               <div style={{ position:"absolute", top:-18, right:-24, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(0,229,195,0.3)", borderRadius:12, padding:"9px 14px", transform:"rotate(2deg)", fontSize:12, color:"rgba(255,255,255,0.8)", fontWeight:600, whiteSpace:"nowrap" }}>Project demo mode</div>
               <div style={{ position:"absolute", bottom:28, left:-32, background:"rgba(12,24,41,0.9)", backdropFilter:"blur(12px)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:12, padding:"9px 14px", transform:"rotate(-2deg)", fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:600, whiteSpace:"nowrap" }}>Trust-first workflow</div>
@@ -1210,21 +952,27 @@ function Landing(props) {
         </div>
       </section>
 
-      <section className="sec-pad reveal" data-reveal="true" style={{ padding:"54px 32px", background:"#F7FAFC", borderTop:"1px solid #E8EDF4", borderBottom:"1px solid #E8EDF4" }}>
+      <section className="sec-pad reveal" data-reveal="true" style={{ padding:"50px 32px", background:"#F7FAFC", borderTop:"1px solid #E8EDF4", borderBottom:"1px solid #E8EDF4" }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
-          <div className="grid-3" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
-            {[
-              ["Fast shortlist", "Find relevant workers in minutes with clear trust signals."],
-              ["Verified profiles", "Background details, reviews, and completion signals in one view."],
-              ["Client-ready flow", "Simple actions for first hire, repeat hire, and replacements."]
-            ].map(function(item) {
-              return (
-                <div key={item[0]} style={card(16, { borderTop:"3px solid "+T.teal, minHeight:118 })}>
-                  <div className="font-display" style={{ fontSize:18, fontWeight:800, color:T.ink, marginBottom:6 }}>{item[0]}</div>
-                  <p style={{ fontSize:13.5, color:T.muted, lineHeight:1.7 }}>{item[1]}</p>
-                </div>
-              );
-            })}
+          <div className="grid-2" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+            <div style={card(20, { borderTop:"3px solid "+T.teal, minHeight:150 })}>
+              <div style={{ fontSize:12, fontWeight:700, color:T.tealM, letterSpacing:0.3, marginBottom:8 }}>START HERE</div>
+              <div className="font-display" style={{ fontSize:22, fontWeight:800, color:T.ink, marginBottom:8 }}>Hiring flow built for speed</div>
+              <p style={{ fontSize:13.5, color:T.muted, lineHeight:1.72, marginBottom:12 }}>Post need, shortlist verified workers, and move to call or trial in one guided sequence.</p>
+              <div style={row("center","flex-start",8)}>
+                <BtnTeal onClick={function(){ setPage("search"); }} style={{ padding:"10px 14px", fontSize:12.5 }}>Start hiring</BtnTeal>
+                <BtnGhost onClick={function(){ setPage("pricing"); }} style={{ padding:"10px 14px", fontSize:12.5 }}>See pricing</BtnGhost>
+              </div>
+            </div>
+            <div style={card(20, { borderTop:"3px solid "+T.violet, minHeight:150 })}>
+              <div style={{ fontSize:12, fontWeight:700, color:T.violet, letterSpacing:0.3, marginBottom:8 }}>TRUST LAYER</div>
+              <div className="font-display" style={{ fontSize:22, fontWeight:800, color:T.ink, marginBottom:8 }}>Verification, review, replacement</div>
+              <p style={{ fontSize:13.5, color:T.muted, lineHeight:1.72, marginBottom:12 }}>Every profile carries checks, ratings, and completion signals so decisions stay clear and professional.</p>
+              <div style={row("center","flex-start",8)}>
+                <button onClick={function(){ setPage("for-societies"); }} style={{ border:"1px solid #D7DFEA", background:"#fff", borderRadius:T.r, padding:"9px 12px", fontSize:12.5, fontWeight:700, color:T.body, cursor:"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" }}>View operations</button>
+                <button onClick={function(){ setPage("for-workers"); }} style={{ border:"1px solid #D7DFEA", background:"#fff", borderRadius:T.r, padding:"9px 12px", fontSize:12.5, fontWeight:700, color:T.body, cursor:"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" }}>Worker side</button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1241,9 +989,9 @@ function Landing(props) {
           </div>
           <div className="role-quick-grid">
             {[
-              ["Worker", "काम चाहिए", T.amber, function(){ setPage("auth"); }],
-              ["Family", "मदद चाहिए", T.teal, function(){ setPage("auth"); }],
-              ["Society", "गेट और रजिस्टर", T.violet, function(){ setPage("auth"); }],
+              ["Worker", "काम चाहिए", T.amber, function(){ setPage("for-workers"); }],
+              ["Family", "मदद चाहिए", T.teal, function(){ setPage("search"); }],
+              ["Society", "गेट और रजिस्टर", T.violet, function(){ setPage("for-societies"); }],
               ["Enterprise", "टीम हायरिंग", "#7C3AED", function(){ setPage("enterprise"); }],
             ].map(function(item) {
               return (
@@ -1305,7 +1053,7 @@ function Landing(props) {
               </div>
               <div style={row("center","flex-start",8)}>
                 <BtnGhost onClick={function(){ setPage("pricing"); }} style={{ padding:"10px 12px", fontSize:12 }}>{trS("View pricing")}</BtnGhost>
-                <BtnTeal onClick={function(){ setPage("auth"); }} style={{ padding:"10px 12px", fontSize:12 }}>{trS("Talk to support")}</BtnTeal>
+                <BtnTeal onClick={function(){ setPage("enterprise"); }} style={{ padding:"10px 12px", fontSize:12 }}>{trS("Talk to support")}</BtnTeal>
               </div>
             </div>
           </div>
