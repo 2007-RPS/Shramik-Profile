@@ -919,11 +919,9 @@ function Landing(props) {
   var planHomesState = useState("1");
   var planWorkersState = useState("2");
   var planModelState = useState("standard");
-  var innovationState = useState("concierge");
   var planHomes = planHomesState[0], setPlanHomes = planHomesState[1];
   var planWorkers = planWorkersState[0], setPlanWorkers = planWorkersState[1];
   var planModel = planModelState[0], setPlanModel = planModelState[1];
-  var innovation = innovationState[0], setInnovation = innovationState[1];
 
   var comparisonRows = [
     ["Verification depth", "Phone-only checks", "Profile claims", "Aadhaar + police + trust history"],
@@ -963,19 +961,6 @@ function Landing(props) {
     setRoadmapMsg("Sandbox API key generated for integration pilot.");
   }
 
-  function selectInnovation(id) {
-    setInnovation(id);
-    if (id === "concierge") {
-      setRoadmapMsg("AI Concierge preview: role + budget + area based shortlist in one tap.");
-      return;
-    }
-    if (id === "wallet") {
-      setRoadmapMsg("Trust Wallet preview: digital trust history and work consistency score.");
-      return;
-    }
-    setRoadmapMsg("Voice Booking preview: low-literacy booking in Hindi/English guided steps.");
-  }
-
   return (
     <div>
       {IS_TEST_MODE && (
@@ -996,7 +981,7 @@ function Landing(props) {
               <div style={Object.assign(row("center","flex-start",8), { marginBottom:28 })}>
                 <div className="hero-kicker">
                   <div style={{ width:7, height:7, borderRadius:"50%", background:T.teal, animation:"pulse 2s infinite" }} />
-                  <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,0.7)", letterSpacing:0.5 }}>2nd Year BTech Project - SIP 2026</span>
+                  <span style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,0.7)", letterSpacing:0.5 }}>Trusted local hiring platform</span>
                 </div>
               </div>
 
@@ -1085,9 +1070,8 @@ function Landing(props) {
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div style={Object.assign(row("flex-end","space-between"), { marginBottom:20, gap:14 })}>
             <div>
-              <Chip label="PROJECT DIFFERENTIATOR" color={T.violet} size={11} />
-              <h2 className="font-display" style={{ fontSize:34, fontWeight:800, color:T.ink, marginTop:10, letterSpacing:"-1px" }}>How this project is different from common hiring options</h2>
-              <p style={{ marginTop:8, fontSize:14, color:T.muted, maxWidth:760 }}>For panel review: this section compares our approach with agencies and listing apps on trust, transparency, and day-to-day usability.</p>
+              <h2 className="font-display" style={{ fontSize:34, fontWeight:800, color:T.ink, marginTop:10, letterSpacing:"-1px" }}>Shramik versus the usual hiring flow</h2>
+              <p style={{ marginTop:8, fontSize:14, color:T.muted, maxWidth:760 }}>A simple comparison of trust, speed, and clarity.</p>
             </div>
             <BtnTeal onClick={function(){ setPage("pricing"); }} style={{ padding:"10px 14px", fontSize:12.5 }}>See implementation model</BtnTeal>
           </div>
@@ -1114,47 +1098,11 @@ function Landing(props) {
         </div>
       </section>
 
-      <section className="sec-pad reveal" data-reveal="true" style={{ padding:"76px 32px", background:"linear-gradient(145deg,#0A162A 0%,#101D33 52%,#1C2234 100%)", borderTop:"1px solid rgba(200,169,106,0.22)", borderBottom:"1px solid rgba(200,169,106,0.22)" }}>
-        <div style={{ maxWidth:1200, margin:"0 auto" }}>
-          <div style={{ marginBottom:22 }}>
-            <Chip label="SIGNATURE INNOVATIONS" color={T.amber} size={11} />
-            <h2 className="font-display" style={{ fontSize:36, fontWeight:800, color:"#fff", marginTop:10, letterSpacing:"-1px" }}>Revolutionary features for next-generation worker hiring</h2>
-            <p style={{ marginTop:8, fontSize:14, color:"rgba(255,255,255,0.62)", maxWidth:860 }}>Designed to make Shramik feel premium and future-ready while still practical for your current project scope.</p>
-          </div>
-
-          <div className="grid-3" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, marginBottom:18 }}>
-            {[
-              ["concierge","AI Concierge Match","Smart shortlist using role, area, budget, and urgency in one tap."],
-              ["wallet","Trust Wallet","Portable work identity with verified history and reliability trends."],
-              ["voice","Voice Booking Assist","Hindi/English voice-led booking for low-literacy users."],
-            ].map(function(item) {
-              var active = innovation === item[0];
-              return (
-                <button key={item[0]} onClick={function(){ selectInnovation(item[0]); }} style={{ textAlign:"left", border:active?"1px solid rgba(200,169,106,0.65)":"1px solid rgba(255,255,255,0.16)", background:active?"linear-gradient(140deg,rgba(200,169,106,0.18) 0%,rgba(0,229,195,0.08) 100%)":"rgba(255,255,255,0.04)", borderRadius:T.rM, padding:"18px 16px", cursor:"pointer", color:"#fff", fontFamily:"'Plus Jakarta Sans',system-ui" }}>
-                  <div className="font-display" style={{ fontSize:18, fontWeight:800, marginBottom:6 }}>{item[1]}</div>
-                  <div style={{ fontSize:13, color:"rgba(255,255,255,0.68)", lineHeight:1.6 }}>{item[2]}</div>
-                </button>
-              );
-            })}
-          </div>
-
-          <div style={{ border:"1px solid rgba(200,169,106,0.35)", background:"linear-gradient(130deg,rgba(255,255,255,0.08) 0%,rgba(200,169,106,0.10) 100%)", borderRadius:T.rM, padding:"18px 20px" }}>
-            <div style={{ fontSize:12, letterSpacing:0.4, fontWeight:700, color:"#C8A96A", marginBottom:6 }}>LIVE PREVIEW DESCRIPTION</div>
-            <p style={{ fontSize:14, color:"rgba(255,255,255,0.82)", lineHeight:1.75, margin:0 }}>
-              {innovation === "concierge" ? "AI Concierge Match can suggest top workers with confidence indicators and explain why each profile is recommended."
-                : innovation === "wallet" ? "Trust Wallet can aggregate profile consistency, attendance, employer feedback, and completed jobs into one portable reputation graph."
-                : "Voice Booking Assist can allow spoken prompts, quick confirmations, and auto-filled hiring request details for first-time users."}
-            </p>
-          </div>
-        </div>
-      </section>
-
       <section className="sec-pad reveal" data-reveal="true" style={{ padding:"64px 32px", background:T.white, borderBottom:"1px solid #E8EDF4" }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div style={{ marginBottom:18 }}>
-            <Chip label="FOR PANELISTS" color={T.teal} size={11} />
-            <h2 className="font-display" style={{ fontSize:32, fontWeight:800, color:T.ink, marginTop:10 }}>Project understanding in 60 seconds</h2>
-            <p style={{ marginTop:8, fontSize:14, color:T.muted, maxWidth:860 }}>This section is added for academic evaluation: what problem we picked, what we built, what is currently in scope, and what can be extended in future iterations.</p>
+            <h2 className="font-display" style={{ fontSize:32, fontWeight:800, color:T.ink, marginTop:10 }}>Product snapshot</h2>
+            <p style={{ marginTop:8, fontSize:14, color:T.muted, maxWidth:860 }}>The core idea is to make local hiring clear, fast, and trustworthy.</p>
           </div>
 
           <div className="grid-4" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12 }}>
@@ -1188,8 +1136,7 @@ function Landing(props) {
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div style={Object.assign(row("center","space-between"), { marginBottom:20, gap:10 })}>
             <div>
-              <Chip label="USER FLOW" color={T.teal} size={11} />
-              <h2 className="font-display" style={{ fontSize:28, fontWeight:800, color:T.ink, marginTop:10 }}>Choose a role and test the full workflow.</h2>
+              <h2 className="font-display" style={{ fontSize:28, fontWeight:800, color:T.ink, marginTop:10 }}>Choose a role and move through the flow.</h2>
             </div>
             <button onClick={function(){ setEasyMode(function(v){ return !v; }); }} style={{ border:"1px solid "+(easyMode?T.teal:T.borderM), background:easyMode?T.teal+"15":T.white, color:easyMode?T.tealM:T.body, borderRadius:999, padding:"10px 14px", fontSize:12.5, fontWeight:700, cursor:"pointer", fontFamily:"'Plus Jakarta Sans',system-ui" }}>
               {easyMode?"Easy Mode On":"Turn On Easy Mode"}
@@ -1217,8 +1164,7 @@ function Landing(props) {
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div className="grid-2" style={{ display:"grid", gridTemplateColumns:"1.12fr .88fr", gap:18 }}>
             <div style={card(24, { borderTop:"3px solid "+T.teal })}>
-              <Chip label={trS("Problem clarity")} color={T.teal} size={11} />
-              <h3 className="font-display" style={{ fontSize:28, fontWeight:800, color:T.ink, marginTop:12, marginBottom:8 }}>What problem we focused on and why it matters.</h3>
+              <h3 className="font-display" style={{ fontSize:28, fontWeight:800, color:T.ink, marginTop:12, marginBottom:8 }}>The problem we solve</h3>
               <p style={{ fontSize:14, color:T.muted, marginBottom:16 }}>{trS("Informal hiring is mostly unstructured. Families struggle with trust and workers struggle with visibility.")}</p>
               <div style={{ display:"grid", gridTemplateColumns:"1fr", gap:10 }}>
                 {[
@@ -1234,11 +1180,10 @@ function Landing(props) {
                   );
                 })}
               </div>
-              <div style={{ marginTop:14, fontSize:12.5, color:T.muted }}>{trS("Scope is intentionally practical for a student project: clean flows, real problem fit, and clear feature boundaries.")}</div>
+              <div style={{ marginTop:14, fontSize:12.5, color:T.muted }}>{trS("Clear flow, real problem fit, and fast decision-making.")}</div>
             </div>
 
             <div style={card(24, { borderTop:"3px solid "+T.violet })}>
-              <div style={{ marginBottom:10 }}><Chip label={trS("Transparent cost planner")} color={T.violet} size={11} /></div>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:10 }}>
                 <div>
                   <div style={{ fontSize:12, color:T.muted, fontWeight:700, marginBottom:6 }}>{trS("Households")}</div>
@@ -1257,7 +1202,7 @@ function Landing(props) {
                 </div>
               </div>
               <div style={{ border:"1px solid #E8EDF4", borderRadius:T.r, background:"#F8FBFF", padding:"12px 14px", marginBottom:12 }}>
-                <div style={{ fontSize:12, color:T.muted, fontWeight:700 }}>{trS("Expected monthly platform fee")}</div>
+                <div style={{ fontSize:12, color:T.muted, fontWeight:700 }}>{trS("Estimated monthly platform fee")}</div>
                 <div className="font-display" style={{ fontSize:30, color:T.ink, fontWeight:800, marginTop:2 }}>Rs. {estimatedFee.toLocaleString()}</div>
                 <div style={{ fontSize:12, color:T.muted, marginTop:3 }}>No worker salary commission. Replacement request included.</div>
               </div>
@@ -1274,11 +1219,10 @@ function Landing(props) {
       <section className="sec-pad reveal" data-reveal="true" style={{ padding:"100px 32px", background:T.white }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div className="section-intro">
-            <Chip label="PROBLEM -> SOLUTION" color={T.violet} size={11} />
             <h2 className="font-display h2-big" style={{ fontSize:44, fontWeight:800, color:T.ink, letterSpacing:"-1.5px", lineHeight:1.1, marginTop:16 }}>
-              Real local hiring pain points.<br /><span className="grad-teal">Practical solution through Shramik.</span>
+              Trust problem.<br /><span className="grad-teal">Clear hiring flow.</span>
             </h2>
-            <p>Built and presented as a student implementation with clear assumptions and measurable outcomes.</p>
+            <p>Structured for fast understanding in a product demo.</p>
           </div>
           <div className="grid-3" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
             {[
@@ -1316,8 +1260,7 @@ function Landing(props) {
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div style={Object.assign(row("flex-end","space-between"), { marginBottom:52, gap:16 })}>
             <div>
-              <Chip label="BROWSE WORKERS" color={T.teal} size={11} />
-              <h2 className="font-display h2-big" style={{ fontSize:38, fontWeight:800, color:T.ink, letterSpacing:"-1.2px", marginTop:14 }}>Every skill. Every city.</h2>
+              <h2 className="font-display h2-big" style={{ fontSize:38, fontWeight:800, color:T.ink, letterSpacing:"-1.2px", marginTop:14 }}>Worker network</h2>
             </div>
             <BtnGhost onClick={function(){ setPage("search"); }}>View all workers</BtnGhost>
           </div>
@@ -1340,9 +1283,8 @@ function Landing(props) {
       <section className="mesh-bg dot-bg sec-pad reveal" data-reveal="true" style={{ padding:"96px 32px", overflow:"hidden" }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div className="section-intro">
-            <Chip label="HOW IT WORKS" color={T.teal} size={11} />
-            <h2 className="font-display h2-big" style={{ fontSize:40, fontWeight:800, color:"#fff", letterSpacing:"-1.2px", marginTop:16 }}>Verify fast. Hire safely. Grow continuously.</h2>
-            <p style={{ color:"rgba(255,255,255,0.52)" }}>Verify. Match. Hire. Rate. Repeat.</p>
+            <h2 className="font-display h2-big" style={{ fontSize:40, fontWeight:800, color:"#fff", letterSpacing:"-1.2px", marginTop:16 }}>How the flow works</h2>
+            <p style={{ color:"rgba(255,255,255,0.52)" }}>Simple steps from verification to repeat trust.</p>
           </div>
           <div className="grid-3" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
             {[
@@ -1365,13 +1307,11 @@ function Landing(props) {
       <section className="sec-pad reveal" data-reveal="true" style={{ padding:"86px 32px", background:T.white }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div className="section-intro">
-            <Chip label="PLATFORM MODULES" color={T.teal} size={11} />
-            <h2 className="font-display h2-big" style={{ fontSize:40, fontWeight:800, color:T.ink, letterSpacing:"-1.2px", marginTop:16 }}>More than a directory. A complete trust operating layer.</h2>
-            <p>One trust layer for every stakeholder.</p>
+            <h2 className="font-display h2-big" style={{ fontSize:40, fontWeight:800, color:T.ink, letterSpacing:"-1.2px", marginTop:16 }}>Platform built around trust</h2>
+            <p>Everything needed to hire, verify, and manage with clarity.</p>
           </div>
           <div className="home-feature-grid">
             <div className="lift card-glow home-feature-core" style={card(28, { background:"linear-gradient(180deg,#071221 0%,#0C1829 100%)", border:"1px solid rgba(0,229,195,0.14)" })}>
-              <div style={{ marginBottom:16 }}><Chip label="CORE RECORD" color={T.teal} size={11} /></div>
               <div className="font-display" style={{ fontSize:26, fontWeight:800, color:"#fff", lineHeight:1.08, marginBottom:12 }}>A living worker profile with trust, earnings, and hiring signals.</div>
               <p style={{ fontSize:14, color:"rgba(255,255,255,0.56)", lineHeight:1.78, marginBottom:22 }}>Each profile captures identity verification, work history, ratings, availability, and key decision data so employers and societies can act with confidence.</p>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
@@ -1406,9 +1346,8 @@ function Landing(props) {
       <section className="sec-pad reveal" data-reveal="true" style={{ padding:"90px 32px", background:T.offwhite }}>
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <div className="section-intro" style={{ marginBottom:56 }}>
-            <Chip label="REAL STORIES" color={T.violet} size={11} />
-            <h2 className="font-display h2-big" style={{ fontSize:40, fontWeight:800, color:T.ink, letterSpacing:"-1.2px", marginTop:16 }}>People trust it.</h2>
-            <p>Real trust. Real outcomes.</p>
+            <h2 className="font-display h2-big" style={{ fontSize:40, fontWeight:800, color:T.ink, letterSpacing:"-1.2px", marginTop:16 }}>People trust it</h2>
+            <p>Proof from the people using it.</p>
           </div>
           <div className="grid-3" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
             {[
@@ -1465,9 +1404,8 @@ function Landing(props) {
       <section className="sec-pad reveal" data-reveal="true" style={{ padding:"76px 32px", background:T.offwhite, borderTop:"1px solid #E8EDF4" }}>
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <div className="section-intro" style={{ marginBottom:36 }}>
-            <Chip label="ROADMAP" color={T.violet} size={11} />
-            <h2 className="font-display h2-big" style={{ fontSize:36, fontWeight:800, color:T.ink, marginTop:14 }}>What we improve next</h2>
-            <p>Clear steps to improve trust, usability, and scale across all stakeholders.</p>
+            <h2 className="font-display h2-big" style={{ fontSize:36, fontWeight:800, color:T.ink, marginTop:14 }}>What comes next</h2>
+            <p>Future upgrades for scale, automation, and deeper trust tooling.</p>
           </div>
           <div className="grid-4" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }}>
             {[
@@ -1489,10 +1427,10 @@ function Landing(props) {
           </div>
           <div style={card(20, { marginTop:14, borderLeft:"3px solid "+(roadmap==="assist"?T.teal:roadmap==="ops"?T.violet:roadmap==="finance"?T.amber:T.green) })}>
             <div className="font-display" style={{ fontSize:16, fontWeight:800, color:T.ink, marginBottom:8 }}>
-              {roadmap==="assist"?"Worker Assist Module":""}
-              {roadmap==="ops"?"Smart Ops Module":""}
-              {roadmap==="finance"?"Trust Finance Module":""}
-              {roadmap==="integrations"?"Open Integrations Module":""}
+              {roadmap==="assist"?"Worker Assist":""}
+              {roadmap==="ops"?"Smart Ops":""}
+              {roadmap==="finance"?"Trust Finance":""}
+              {roadmap==="integrations"?"Open Integrations":""}
             </div>
             <p style={{ fontSize:13, color:T.muted, marginBottom:12 }}>
               {roadmap==="assist"?"Enable voice helper and simplified worker onboarding cues.":""}
